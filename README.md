@@ -1,16 +1,3 @@
-# mx_companion_v1
+# MX Companion
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+MX Companion is a mobile application built with flutter. It is targeted at 100 level students of Federal University of Technology, Minna. It is designed to help them ace e-exams and e-tests by providing easy access to past questions and lots of practice questions so that they get familiar, and comfortable with the e-exam and e-test questions format.
