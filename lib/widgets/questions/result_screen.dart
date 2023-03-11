@@ -64,6 +64,7 @@ class _ResultScreenState extends State<ResultScreen> {
     var allThrees = 0.obs;
     var allTwos = 0.obs;
     var allOnes = 0.obs;
+    var tries = 0.obs;
     RxBool _isLoading = false.obs;
 
     final CollectionReference quizRating = fireStore
@@ -93,7 +94,8 @@ class _ResultScreenState extends State<ResultScreen> {
                 commentController.text = ratings.first['comment'];
                 var rating = ratings.first['rating'];
                 bool isRated = ratings.first['isRated'];
-
+                var triesOnline = ratings.first['tries'];
+                tries.value = triesOnline;
                 if (streamSnapshot.data!.docs.isEmpty) {
                   return Container();
                 } else {
@@ -527,7 +529,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                               onTap: () {
                                                 Get.find<AuthController>()
                                                     .showSnackBar(
-                                                        'Points has been claimed.');
+                                                        'Points have been claimed.');
                                               },
                                               icon: Icons.check,
                                               text: 'Points claimed',
@@ -574,9 +576,26 @@ class _ResultScreenState extends State<ResultScreen> {
                                         name: 'Minutes',
                                       ),
                                       const SizedBox(width: 10),
-                                      const Stat(
-                                        text: '12',
-                                        name: 'Tries',
+                                      StreamBuilder(
+                                          stream: quizRating.snapshots(),
+                                          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot){
+                                            if (streamSnapshot.hasData) {
+                                              List<DocumentSnapshot> snapShot = streamSnapshot.data!.docs;
+                                              var ratings = snapShot
+                                                  .where((element) => element.id == controller.paperId);
+
+                                              int triesOnline = ratings.first['tries'];
+                                              tries.value = triesOnline;
+                                              return Stat(
+                                                text: triesOnline.toString(),
+                                                name: 'Attempts',
+                                               );
+                                            }
+                                            return const Stat(
+                                              text: '12',
+                                              name: 'Attempts',
+                                            );
+                                        }
                                       ),
                                     ],
                                   ),
@@ -765,7 +784,83 @@ class _ResultScreenState extends State<ResultScreen> {
                                         ],
                                       );
                                     }
-                                    return Container();
+                                    return Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          height: 150,
+                                          width: 150,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .highlightColor,
+                                            borderRadius:
+                                            UIParameters.cardBorderRadius,
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10.0),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment
+                                                  .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  '0.0',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleLarge!
+                                                      .merge(
+                                                    const TextStyle(
+                                                      fontWeight:
+                                                      FontWeight.bold,
+                                                      fontSize: 60,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const RatingBar(
+                                                  rating: 0.0,
+                                                  size: 24,
+                                                ),
+                                                Text(
+                                                  '0 verified ratings',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 150,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                            children: const [
+                                              Rating(
+                                                number: '5',
+                                                value: .2,
+                                              ),
+                                              Rating(
+                                                number: '4',
+                                                value: .2,
+                                              ),
+                                              Rating(
+                                                number: '3',
+                                                value: .2,
+                                              ),
+                                              Rating(
+                                                number: '2',
+                                                value: .2,
+                                              ),
+                                              Rating(
+                                                number: '1',
+                                                value: .2,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
                                   },
                                 ),
                               ),
@@ -989,10 +1084,15 @@ class _ResultScreenState extends State<ResultScreen> {
                     SizedBox(
                       width: 160,
                       child: AppButton(
-                        onTap: () {
+                        onTap: () async {
                           if (controller.interstitialAd != null) {
                             controller.interstitialAd?.show();
                             controller.saveTestResult(pointsEarned);
+                            await quizRating
+                                .doc(controller.paperId)
+                                .update({
+                              "tries": tries.value += 1,
+                            });
                             HelperNotification.scheduleLocalNotifications(
                               101,
                               'Awesome!',

@@ -213,7 +213,8 @@ class FirebaseAuthProvider implements AuthProvider {
                 .doc(papers.id),{
           "comment": ratings.comment,
           "rating": ratings.rating,
-          "isRated": ratings.isRated
+          "isRated": ratings.isRated,
+          "tries": 0,
         });
       }
 

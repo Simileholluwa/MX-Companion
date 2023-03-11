@@ -13,6 +13,7 @@ import '../../controllers/question_paper/question_paper_controller.dart';
 import '../../firebase_ref/loading_status.dart';
 import '../../widgets/AppIconText.dart';
 import '../../widgets/content_area.dart';
+import '../../widgets/text_button_with_icon.dart';
 import '../search/search_delegate.dart';
 
 class MainScreen extends StatefulWidget {
@@ -196,7 +197,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       const Padding(
                         padding: EdgeInsets.only(left: 30, bottom: 25),
-                        child: Text('swipe left on each course for more options',
+                        child: Text('swipe left on each course card for more options',
                           style: TextStyle(
                             fontSize: 8,
                           ),
@@ -296,6 +297,47 @@ class _MainScreenState extends State<MainScreen> {
                                       }
                                     },
                                   ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (questionPaperController.loadingStatus.value == LoadingStatus.error)
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                        ),
+                        child: ContentAreaCustom(
+                          addRadius: true,
+                          addColor: true,
+                          child: SizedBox(
+                            height: double.maxFinite,
+                            width: double.maxFinite,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  questionPaperController.errorCode.value == 'denied' ? Icons.waving_hand : Icons.wifi_off_sharp,
+                                size: 150,
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  questionPaperController.errorCode.value == 'denied' ? 'Hi there! Kindly log in to access available courses' : 'Ensure you have an active internet.',
+                                  textAlign: TextAlign.center,
+                                ),
+                                TextButtonWithIcon(
+                                  onTap: () {
+                                    questionPaperController.errorCode.value == 'denied' ? auth.navigateToLogin() : questionPaperController.getAllPapers();
+                                  },
+                                  icon: questionPaperController.errorCode.value == 'denied' ? Icons.login : Icons.refresh_sharp,
+                                  text: questionPaperController.errorCode.value == 'denied' ? 'Login' : 'Refresh',
                                 ),
                               ],
                             ),

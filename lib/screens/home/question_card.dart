@@ -209,10 +209,7 @@ class _QuestionsCardState extends State<QuestionsCard> {
                   if (streamSnapshot.data!.docs.isEmpty) {
                     return SlidableAction(
                       onPressed: (context) async {
-                        auth.getUser() == null
-                            ? auth.showLoginAlertDialog(
-                                'To set a reminder for your selected course, you need to sign in. It will only take a while..')
-                            : selectDate();
+                        selectDate();
                       },
                       backgroundColor: Colors.purpleAccent,
                       foregroundColor: Colors.white,
@@ -229,10 +226,7 @@ class _QuestionsCardState extends State<QuestionsCard> {
                     return SlidableAction(
                       onPressed: (context) async {
                         bool isPending = await HelperNotification.isPendingNotification(id);
-                        auth.getUser() == null
-                            ? auth.showLoginAlertDialog(
-                                'To set a reminder for your selected course, you need to sign in. It will only take a while..')
-                            : ((isSet == true && isPending == true)
+                        (isSet == true && isPending == true)
                                 ? auth.showCancelReminderAlertDialog(
                                     () async {
                                       await userSchedule.doc(widget.model.id!).update({
@@ -241,7 +235,7 @@ class _QuestionsCardState extends State<QuestionsCard> {
                                       HelperNotification.cancelScheduledNotification(id);
                                       Get.back();
                                     }, widget.model.courseCode!)
-                                : selectDate());
+                                : selectDate();
                       },
                       backgroundColor: Colors.purpleAccent,
                       foregroundColor: Colors.white,
@@ -252,10 +246,7 @@ class _QuestionsCardState extends State<QuestionsCard> {
                 }
                 return SlidableAction(
                   onPressed: (context) async {
-                    auth.getUser() == null
-                        ? auth.showLoginAlertDialog(
-                            'To set a reminder for your selected course, you need to sign in. It will only take a while..')
-                        : selectDate();
+                    selectDate();
                   },
                   backgroundColor: Colors.purpleAccent,
                   foregroundColor: Colors.white,
@@ -266,7 +257,7 @@ class _QuestionsCardState extends State<QuestionsCard> {
           SlidableAction(
             onPressed: (context) {
               auth.showPracticeInfo(
-                'Course title: ${widget.model.courseTitle}\nSemester: ${widget.model.semester}\nTime: ${widget.model.timeInMinutes()}\nNote: The system automatically submits when the time elapses. Have fun!',
+                '${widget.model.courseCode}', 'Course title: ${widget.model.courseTitle}\nSemester: ${widget.model.semester}\nTime: ${widget.model.timeInMinutes()}\nNote: The system automatically submits when the time elapses. Have fun!', context
               );
             },
             label: 'Information',

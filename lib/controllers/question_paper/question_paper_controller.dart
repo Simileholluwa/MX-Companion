@@ -10,11 +10,12 @@ import '../../screens/questions_page/questions_page.dart';
 class QuestionPaperController extends GetxController {
   final allPapers = <QuestionsModel>[].obs;
   final loadingStatus = LoadingStatus.loading.obs;
+  final errorCode = ''.obs;
 
   @override
-  void onReady() {
+  void onInit() {
     getAllPapers();
-    super.onReady();
+    super.onInit();
   }
 
   Future<void> getAllPapers() async {
@@ -25,7 +26,10 @@ class QuestionPaperController extends GetxController {
           data.docs.map((paper) => QuestionsModel.fromSnapshot(paper)).toList();
       allPapers.assignAll(paperList);
       loadingStatus.value = LoadingStatus.completed;
-    } catch (e) {
+    } on FirebaseException catch (e) {
+      if(e.code == 'permission-denied'){
+        errorCode.value = 'denied';
+      }
       loadingStatus.value = LoadingStatus.error;
       return;
     }

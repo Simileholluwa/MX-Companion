@@ -16,7 +16,7 @@ class CommentScreen extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
-  static const String routeName = "/notifications";
+  static const String routeName = "/comments";
 
   @override
   State<CommentScreen> createState() => _CommentScreenState();

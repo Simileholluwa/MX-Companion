@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../config/themes/ui_parameters.dart';
 import '../../controllers/auth_controller.dart';
+import '../../widgets/alert_bottom_sheet.dart';
 import '../../widgets/content_area.dart';
 import '../../widgets/text_button_with_icon.dart';
 
@@ -91,7 +92,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     controller.showDeleteAllHistory(() {
                       _deleteAll(snapShots);
                       Get.back();
-                    }, 'Are you sure you want to delete all practice history?', null, null);
+                    }, 'Are you sure you want to delete all practice history?');
                   }
                 },
               ),
@@ -223,12 +224,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             });
                                           },
                                           confirmDismiss:
-                                              (DismissDirection direction) {
-                                            return controller.showDeleteHistory(() {
-                                              Navigator.of(context)
-                                                  .pop(true);
-                                            }, 'Delete ${documentSnapShot['question_id']}?', 'Are you sure you want to delete ${documentSnapShot['question_id']} from history list? This action is irreversible.', null);
-                                          },
+                                              (DismissDirection direction) async {
+                                                return await Sheet.appSheet(
+                                                  onTap: () => Navigator.of(context).pop(true),
+                                                  onPressed: () => Get.back(),
+                                                  text: 'Delete ${documentSnapShot['question_id']}?',
+                                                  message: 'Are you sure you want to delete ${documentSnapShot['question_id']} from history list? The points you have earned will also be deleted.',
+                                                  action: 'Delete',
+                                                  context: context,
+                                                );
+                                             },
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
                                               vertical: 15,

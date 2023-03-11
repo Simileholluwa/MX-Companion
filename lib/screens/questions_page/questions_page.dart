@@ -11,6 +11,7 @@ import '../../firebase_ref/loading_status.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/content_area.dart';
 import '../../widgets/questions/answer_card.dart';
+import '../../widgets/text_button_with_icon.dart';
 
 class QuestionsPage extends GetView<QuestionsController> {
   const QuestionsPage({Key? key}) : super(key: key);
@@ -110,10 +111,13 @@ class QuestionsPage extends GetView<QuestionsController> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(
-                        left: 20.0,
-                        right: 20,
+                        top:10,
+                        left: 10,
+                        right: 10,
                       ),
                       child: ContentAreaCustom(
+                        addColor: true,
+                        addRadius: true,
                         child: SizedBox(
                           height: double.maxFinite,
                           width: double.maxFinite,
@@ -202,6 +206,47 @@ class QuestionsPage extends GetView<QuestionsController> {
                                           .value!.answers.length,
                                     );
                                   }),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (controller.loadingStatus.value == LoadingStatus.error)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                      ),
+                      child: ContentAreaCustom(
+                        addRadius: true,
+                        addColor: true,
+                        child: SizedBox(
+                          height: double.maxFinite,
+                          width: double.maxFinite,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                controller.errorCode.value == 'denied' ? Icons.waving_hand : Icons.wifi_off_sharp,
+                                size: 150,
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                controller.errorCode.value == 'denied' ? 'Hi there! Kindly log in to access available courses' : 'Ensure you have an active internet.',
+                                textAlign: TextAlign.center,
+                              ),
+                              TextButtonWithIcon(
+                                onTap: () {
+                                  controller.errorCode.value == 'denied' ? auth.navigateToLogin() : controller.loadData(controller.questionModel);
+                                },
+                                icon: controller.errorCode.value == 'denied' ? Icons.login : Icons.refresh_sharp,
+                                text: controller.errorCode.value == 'denied' ? 'Login' : 'Refresh',
+                              ),
                             ],
                           ),
                         ),

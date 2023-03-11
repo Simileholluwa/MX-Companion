@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -29,7 +28,7 @@ class QuestionsController extends GetxController {
   InterstitialAd? interstitialAd, interstitialAd2;
   BannerAd? bannerAd;
   RewardedAd? rewardedAd;
-  int random = 1 + Random().nextInt(20);
+  final errorCode = ''.obs;
 
 
   //Timer
@@ -175,10 +174,11 @@ class QuestionsController extends GetxController {
             .toList();
         _question.answers = answers;
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e.toString());
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        errorCode.value == 'denied';
       }
+      loadingStatus.value = LoadingStatus.error;
     }
     if (questionPaper.questions != null &&
         questionPaper.questions!.isNotEmpty) {

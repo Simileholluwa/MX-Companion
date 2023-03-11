@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../config/themes/ui_parameters.dart';
 import '../../controllers/auth_controller.dart';
+import '../../widgets/alert_bottom_sheet.dart';
 import '../../widgets/content_area.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -99,7 +100,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     controller.showDeleteAllHistory(() {
                       _deleteAll(snapShots);
                       Get.back();
-                    }, 'Are you sure you want to delete all notifications?', null, null);
+                    }, 'Are you sure you want to delete all notifications?',);
                   }
                 },
               ),
@@ -231,14 +232,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                           });
                                         },
                                         confirmDismiss:
-                                            (DismissDirection direction) {
-                                          return controller.showDeleteHistory(
-                                            () {
-                                              Navigator.of(context).pop(true);
-                                            },
-                                            'Delete notification',
-                                            'Are you sure you want to delete notification from list?',
-                                            null
+                                            (DismissDirection direction) async {
+                                          return await Sheet.appSheet(
+                                            onTap: () => Navigator.of(context).pop(true),
+                                            onPressed: () => Get.back(),
+                                            text: 'Delete notification',
+                                            message: 'Are you sure you want to delete notification from list?',
+                                            action: 'Delete',
+                                            context: context,
                                           );
                                         },
                                         child: Material(

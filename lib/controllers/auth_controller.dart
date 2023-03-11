@@ -18,7 +18,7 @@ import '../screens/reset_password/reset_password.dart';
 import '../screens/signup/signup_screen.dart';
 import '../screens/verify_email/verify_email.dart';
 import '../services/Authentication/auth_service.dart';
-import '../widgets/alert_user.dart';
+import '../widgets/alert_bottom_sheet.dart';
 
 class AuthController extends GetxController {
   @override
@@ -41,7 +41,6 @@ class AuthController extends GetxController {
   final _user = Rxn<User>();
   late Stream<User?> _authStateChanges;
 
-
   void initAuth() async {
     await Future.delayed(const Duration(seconds: 3));
     _auth = FirebaseAuth.instance;
@@ -50,7 +49,7 @@ class AuthController extends GetxController {
       _user.value = user;
     });
     //navigateToUploader();
-    if(_auth.currentUser != null) {
+    if (_auth.currentUser != null) {
       if (_auth.currentUser!.emailVerified) {
         navigateToHome();
       } else {
@@ -59,7 +58,6 @@ class AuthController extends GetxController {
     } else {
       navigateToHome();
     }
-
   }
 
   signInWithEmail(String email, String password) async {
@@ -70,7 +68,7 @@ class AuthController extends GetxController {
         password: password,
       );
       _isLoading.value = false;
-      if(_user.value!.emailVerified){
+      if (_user.value!.emailVerified) {
         navigateToHome();
         showSnackBar('Signed in as ${_user.value!.displayName}');
       } else {
@@ -259,9 +257,8 @@ class AuthController extends GetxController {
     Get.toNamed(HistoryScreen.routeName);
   }
 
-  void showLoginAlertDialog(String message) {
-    Get.dialog(
-      Dialogs.appDialog(
+  void showLoginAlertDialog(String message) async {
+     await Sheet.appSheet(
         onTap: () {
           Get.back();
           navigateToLogin();
@@ -272,29 +269,26 @@ class AuthController extends GetxController {
         action: 'Sign In',
         text: 'Hello there!',
         message: message,
-      ),
-      barrierDismissible: true,
-    );
+       context: Get.context!
+      );
   }
 
-  void showCancelReminderAlertDialog(VoidCallback onTap, String courseCode) {
-    Get.dialog(
-      Dialogs.appDialog(
+  void showCancelReminderAlertDialog(VoidCallback onTap, String courseCode) async {
+      await Sheet.appSheet(
         onTap: onTap,
         onPressed: () {
           Get.back();
         },
         action: 'Remove',
         text: 'Remove Reminder',
-        message: 'Are you sure you want to remove reminder to study $courseCode?',
-      ),
-      barrierDismissible: true,
-    );
+        message:
+            'Are you sure you want to remove reminder to study $courseCode?',
+        context: Get.context!,
+      );
   }
 
-  void showSignOutAlertDialog() {
-    Get.dialog(
-      Dialogs.appDialog(
+  void showSignOutAlertDialog() async {
+      await Sheet.appSheet(
         onTap: () {
           Get.back();
           signOut();
@@ -305,66 +299,43 @@ class AuthController extends GetxController {
         action: 'Sign Out',
         text: 'Sign Out',
         message: 'Are you sure you want to sign out?',
-      ),
-      barrierDismissible: true,
-    );
+        context: Get.context!
+      );
   }
 
-  void showDeleteAllHistory(VoidCallback onTap, String message, String? actionString, String? actionText) {
-    Get.dialog(
-      Dialogs.appDialog(
-        onTap: onTap,
-        onPressed: () {
-          Get.back();
-        },
-        action: actionString ?? 'Delete',
-        text: actionText ?? 'Delete All',
-        message: message,
-      ),
-      barrierDismissible: true,
-    );
-  }
-
-  Future<bool?> showDeleteHistory(
+  Future<void> showDeleteAllHistory(
     VoidCallback onTap,
-    String text,
     String message,
-      String? actionString
   ) async {
-    return Get.dialog(
-      Dialogs.appDialog(
-        onTap: onTap,
-        onPressed: () {
-          Get.back();
-        },
-        action: actionString ?? 'Delete',
-        text: text,
-        message: message,
-      ),
-      barrierDismissible: true,
+    await Sheet.appSheet(
+      onTap: onTap,
+      onPressed: () => Get.back(),
+      text: 'Delete All',
+      message: 'Are you sure you want to delete all practice history?',
+      action: 'Delete',
+      context: Get.context!,
     );
   }
 
-  void showPracticeInfo(String message) {
-    Get.dialog(
-      Dialogs.appDialog(
-        onTap: () {
-          Get.back();
-        },
-        onPressed: () {
-          Get.back();
-        },
-        cancel: false,
-        action: 'Got It!',
-        text: 'Heads Up!',
-        message: message,
-      ),
+  void showPracticeInfo(
+      String courseCode, String message, BuildContext context) async {
+    await Sheet.appSheet(
+      onTap: () {
+        Get.back();
+      },
+      onPressed: () {
+        Get.back();
+      },
+      context: context,
+      cancel: false,
+      action: 'Got It!',
+      text: '$courseCode Course Information',
+      message: message,
     );
   }
 
-  void showNotificationDetails(String title, String body) {
-    Get.dialog(
-      Dialogs.appDialog(
+  void showNotificationDetails(String title, String body) async {
+      await Sheet.appSheet(
         onTap: () {
           Get.back();
         },
@@ -375,9 +346,8 @@ class AuthController extends GetxController {
         action: 'Got It!',
         text: title,
         message: body,
-      ),
-      barrierDismissible: true,
-    );
+        context: Get.context!,
+      );
   }
 
   bool isLoggedIn() {

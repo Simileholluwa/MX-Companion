@@ -8,9 +8,8 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mx_companion_v1/controllers/zoom_drawer.dart';
-import '../../config/local_storage.dart';
 import '../../controllers/ad_helper.dart';
-import '../../widgets/alert_user.dart';
+import '../../widgets/alert_bottom_sheet.dart';
 import '../../widgets/content_area.dart';
 import '../../widgets/icon_and_text.dart';
 import '../../widgets/text_field.dart';
@@ -85,9 +84,8 @@ class _MenuScreenState extends State<MenuScreen> {
 
     MyZoomDrawerController controller = Get.find();
 
-    void showUpdateUserDetails(CollectionReference userDetails,) {
-      Get.dialog(
-        Dialogs.updateDetailsDialog(
+    void showUpdateUserDetails(CollectionReference userDetails,) async {
+        await Sheet.updateDetailsDialog(
           title: 'Update Details',
           content: StreamBuilder(
             stream: userDetails.snapshots(),
@@ -102,7 +100,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 return Container(
                   padding: EdgeInsets.only(
                     top: 10.0,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 10,
                     left: 20,
                     right: 20,
                   ),
@@ -175,8 +173,30 @@ class _MenuScreenState extends State<MenuScreen> {
                           controller: userNameController,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            TextButton(
+                                onPressed: () => Get.back(),
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                ),
+                            ),
+                            const SizedBox(
+                              width: 30,
+                            ),
+                            const SizedBox(
+                              width: 1,
+                              child: Divider(
+                                thickness: 20,
+                                height: 50,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 30,
+                            ),
                             TextButton(
                               onPressed: () async {
                                 var userName = userNameController.text
@@ -211,6 +231,9 @@ class _MenuScreenState extends State<MenuScreen> {
                               child: _isLoading.isFalse
                                   ? const Text(
                                 'Update',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
                               )
                                   : LoadingAnimationWidget.prograssiveDots(
                                 color: Theme.of(context).primaryColor,
@@ -246,9 +269,7 @@ class _MenuScreenState extends State<MenuScreen> {
               );
             },
           ),
-        ),
-        barrierDismissible: true,
-      );
+        );
     }
 
 
@@ -309,7 +330,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                           height: 110,
                                           width: 110,
                                           child: Image.network(
-                                            StorageService.to.getString('image'),
+                                            controller.user.value?.photoURL ?? "",
                                             loadingBuilder: (context, child,
                                                 loadingProgress) {
                                               if (loadingProgress == null) {
@@ -319,7 +340,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                                 child: LoadingAnimationWidget
                                                     .fourRotatingDots(
                                                         color: Theme.of(context).primaryColor,
-                                                        size: 70),
+                                                        size: 50),
                                               );
                                             },
                                             errorBuilder:

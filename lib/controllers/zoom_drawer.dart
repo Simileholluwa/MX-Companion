@@ -6,7 +6,6 @@ import 'package:flutter_zoom_drawer/config.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mx_companion_v1/config/local_storage.dart';
 import 'package:mx_companion_v1/controllers/auth_controller.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -193,7 +192,7 @@ class MyZoomDrawerController extends GetxController {
     try {
       if (_photo != null) {
         final fileName = basename(_photo!.path);
-        final destination = 'images/$fileName';
+        final destination = 'images/${user.value!.email}/$fileName';
         task = FirebaseApi.uploadFile(destination, _photo!);
         if (task == null) {
           return;
@@ -204,7 +203,6 @@ class MyZoomDrawerController extends GetxController {
             final urlDownload = await snapShot.ref.getDownloadURL();
             await FirebaseAuth.instance.currentUser!
                 .updatePhotoURL(urlDownload);
-            StorageService.to.setString('image', urlDownload);
             update();
             showSnackBar('Profile image uploaded.');
           } on FirebaseException catch (e) {
