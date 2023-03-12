@@ -111,7 +111,7 @@ class QuestionsPage extends GetView<QuestionsController> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(
-                        top:10,
+                        top:30,
                         left: 10,
                         right: 10,
                       ),

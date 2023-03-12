@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mx_companion_v1/controllers/questions_controller.dart';
 import '../../firebase_ref/references.dart';
-import '../../widgets/alert_user.dart';
+import '../../widgets/alert_bottom_sheet.dart';
 import '../../widgets/star_system.dart';
 import '../auth_controller.dart';
 
@@ -90,9 +89,8 @@ extension QuestionsControllerExtension on QuestionsController {
     }
   }
 
-  void commentPreview(String text, int value, String userName) {
-    Get.dialog(
-      Dialogs.starRating(
+  void commentPreview(String text, int value, String userName) async {
+      await Sheet.starRating(
         onTap: () {
           Get.back();
         },
@@ -104,9 +102,12 @@ extension QuestionsControllerExtension on QuestionsController {
           children: [
             Column(
               children: [
-                Text(
-                  text,
-                  style: Theme.of(Get.context!).textTheme.titleMedium!.merge( TextStyle(color: Theme.of(Get.context!).hintColor, fontSize: 15,),),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20.0, right: 20, top: 10,),
+                  child: Text(
+                    text,
+                    style: Theme.of(Get.context!).textTheme.titleMedium!.merge( TextStyle(color: Theme.of(Get.context!).hintColor, fontSize: 15,),),
+                  ),
                 ),
               ],
             ),
@@ -121,8 +122,7 @@ extension QuestionsControllerExtension on QuestionsController {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Future<void> saveTestResult(String? pointsEarned) async {

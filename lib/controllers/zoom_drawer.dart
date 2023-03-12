@@ -11,7 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path/path.dart';
 import '../services/upload.dart';
-import '../widgets/alert_user.dart';
+import '../widgets/alert_bottom_sheet.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class MyZoomDrawerController extends GetxController {
@@ -220,9 +220,8 @@ class MyZoomDrawerController extends GetxController {
     }
   }
 
-  void showJoinSocial() {
-    Get.dialog(
-      Dialogs.updateDetailsDialog(
+  Future<void> showJoinSocial() async {
+      await Sheet.updateDetailsDialog(
         title: 'Social Groups',
         content: Padding(
           padding: const EdgeInsets.only(
@@ -266,8 +265,6 @@ class MyZoomDrawerController extends GetxController {
             ],
           ),
         ),
-      ),
-      barrierDismissible: true,
     );
   }
 

@@ -6,6 +6,7 @@ class InitialBinding implements Bindings {
   @override
   Future<void> dependencies() async {
     Get.put(AuthController(), permanent: true);
+
     await Get.putAsync<StorageService>(() => StorageService().init());
   }
 }

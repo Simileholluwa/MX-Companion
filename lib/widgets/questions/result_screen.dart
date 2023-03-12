@@ -14,7 +14,7 @@ import '../../config/themes/ui_parameters.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/questions_controller.dart';
 import '../../screens/questions_page/check_answer.dart';
-import '../alert_user.dart';
+import '../alert_bottom_sheet.dart';
 import '../app_button.dart';
 import '../content_area.dart';
 import '../rating_bar.dart';
@@ -79,9 +79,8 @@ class _ResultScreenState extends State<ResultScreen> {
         .doc(controller.paperId)
         .collection('allComments');
 
-    void rateQuiz() {
-      Get.dialog(
-        Dialogs.updateDetailsDialog(
+    void rateQuiz() async {
+       await Sheet.updateDetailsDialog(
           title: 'Review Quiz',
           content: StreamBuilder(
             stream: quizRating.snapshots(),
@@ -100,7 +99,12 @@ class _ResultScreenState extends State<ResultScreen> {
                   return Container();
                 } else {
                   return Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.only(
+                      top: 10.0,
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+                      left: 20,
+                      right: 20,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -132,15 +136,37 @@ class _ResultScreenState extends State<ResultScreen> {
                           ),
                         ),
                         const SizedBox(
-                          height: 20,
+                          height: 10,
                         ),
                         const StarPage(),
                         const SizedBox(
                           height: 20,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            TextButton(
+                              onPressed: () => Get.back(),
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 30,
+                            ),
+                            const SizedBox(
+                              width: 1,
+                              child: Divider(
+                                thickness: 20,
+                                height: 50,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 30,
+                            ),
                             TextButton(
                               onPressed: () async {
                                 final isValid =
@@ -310,7 +336,11 @@ class _ResultScreenState extends State<ResultScreen> {
                                       color: Theme.of(context).primaryColor,
                                       size: 50,
                                     )
-                                  : const Text('Review'),
+                                  : const Text('Review',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                              ),
                             ),
                           ],
                         ),
@@ -340,7 +370,6 @@ class _ResultScreenState extends State<ResultScreen> {
               );
             },
           ),
-        ),
       );
     }
 
@@ -784,83 +813,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                         ],
                                       );
                                     }
-                                    return Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          height: 150,
-                                          width: 150,
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .highlightColor,
-                                            borderRadius:
-                                            UIParameters.cardBorderRadius,
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10.0),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment
-                                                  .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  '0.0',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleLarge!
-                                                      .merge(
-                                                    const TextStyle(
-                                                      fontWeight:
-                                                      FontWeight.bold,
-                                                      fontSize: 60,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const RatingBar(
-                                                  rating: 0.0,
-                                                  size: 24,
-                                                ),
-                                                Text(
-                                                  '0 verified ratings',
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 150,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                            children: const [
-                                              Rating(
-                                                number: '5',
-                                                value: .2,
-                                              ),
-                                              Rating(
-                                                number: '4',
-                                                value: .2,
-                                              ),
-                                              Rating(
-                                                number: '3',
-                                                value: .2,
-                                              ),
-                                              Rating(
-                                                number: '2',
-                                                value: .2,
-                                              ),
-                                              Rating(
-                                                number: '1',
-                                                value: .2,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    );
+                                    return Container();
                                   },
                                 ),
                               ),

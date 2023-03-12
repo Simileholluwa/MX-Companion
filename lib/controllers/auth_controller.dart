@@ -42,7 +42,7 @@ class AuthController extends GetxController {
   late Stream<User?> _authStateChanges;
 
   void initAuth() async {
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 5));
     _auth = FirebaseAuth.instance;
     _authStateChanges = _auth.authStateChanges();
     _authStateChanges.listen((User? user) {

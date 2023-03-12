@@ -59,52 +59,49 @@ class Sheet {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      cancel == true
-                          ? TextButton(
-                              onPressed: onPressed,
-                              child: const Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ))
-                          : const SizedBox(),
-                      cancel == true
-                          ? const SizedBox(
-                              width: 30,
-                            )
-                          : const SizedBox(),
-                      cancel == true
-                          ? const SizedBox(
-                              width: 1,
-                              child: Divider(
-                                thickness: 20,
-                                height: 50,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    cancel == true
+                        ? TextButton(
+                            onPressed: onPressed,
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 20,
                               ),
-                            )
-                          : const SizedBox(),
-                      cancel == true
-                          ? const SizedBox(
-                              width: 30,
-                            )
-                          : const SizedBox(),
-                      TextButton(
-                        onPressed: onTap,
-                        child: Text(
-                          action,
-                          style: const TextStyle(
-                            fontSize: 20,
-                          ),
+                            ))
+                        : const SizedBox(),
+                    cancel == true
+                        ? const SizedBox(
+                            width: 30,
+                          )
+                        : const SizedBox(),
+                    cancel == true
+                        ? const SizedBox(
+                            width: 1,
+                            child: Divider(
+                              thickness: 20,
+                              height: 50,
+                            ),
+                          )
+                        : const SizedBox(),
+                    cancel == true
+                        ? const SizedBox(
+                            width: 30,
+                          )
+                        : const SizedBox(),
+                    TextButton(
+                      onPressed: onTap,
+                      child: Text(
+                        action,
+                        style: const TextStyle(
+                          fontSize: 20,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10,),
               ],
@@ -159,35 +156,66 @@ class Sheet {
       },
     );
   }
-  //
-  // static Widget starRating({
-  //   required VoidCallback onTap,
-  //   required String title,
-  //   String? tapString,
-  //   required Widget content,
-  // }) {
-  //   return AlertDialog(
-  //     shape: RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.circular(10),
-  //     ),
-  //     title: SizedBox(
-  //       width: double.maxFinite,
-  //       child: Text(
-  //         title,
-  //       ),
-  //     ),
-  //     titlePadding: const EdgeInsets.only(top: 20, left: 20, bottom: 10,),
-  //     content: content,
-  //     actions: [
-  //       TextButton(
-  //         onPressed: onTap,
-  //         child: Text(
-  //           tapString ?? 'Review',
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+
+  static Future starRating({
+    required VoidCallback onTap,
+    required String title,
+    String? tapString,
+    required Widget content,
+  }) {
+    return showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      isScrollControlled: true,
+      context: Get.context!,
+      builder: (context) {
+        return Popover(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 25,
+                    right: 25,
+                    top: 10,
+                  ),
+                  child: SizedBox(
+                    width: double.maxFinite,
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: content,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: onTap,
+                      child: Text(
+                        tapString ?? 'Review',
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class Popover extends StatelessWidget {

@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:mx_companion_v1/controllers/auth_controller.dart';
 import 'package:mx_companion_v1/models/questions_model.dart';
-
 import '../../firebase_ref/loading_status.dart';
 import '../../firebase_ref/references.dart';
 import '../../screens/questions_page/questions_page.dart';
@@ -13,27 +11,34 @@ class QuestionPaperController extends GetxController {
   final errorCode = ''.obs;
 
   @override
-  void onInit() {
+  void onReady() {
     getAllPapers();
-    super.onInit();
+    super.onReady();
   }
 
   Future<void> getAllPapers() async {
     loadingStatus.value = LoadingStatus.loading;
     try {
-      QuerySnapshot<Map<String, dynamic>> data = await questionPaperRF.get();
-      final paperList =
-          data.docs.map((paper) => QuestionsModel.fromSnapshot(paper)).toList();
-      allPapers.assignAll(paperList);
-      loadingStatus.value = LoadingStatus.completed;
-    } on FirebaseException catch (e) {
-      if(e.code == 'permission-denied'){
-        errorCode.value = 'denied';
-      }
+      questionPaperRF.snapshots().listen((value) {
+        allPapers.assignAll(value.docs.map((paper) => QuestionsModel.fromSnapshot(paper)).toList());
+        loadingStatus.value = LoadingStatus.completed;
+      },
+          onError: (e) {
+            loadingStatus.value = LoadingStatus.error;
+            print('error here : ${e.toString()}');
+            if(e.code == 'permission-denied'){
+              errorCode.value = 'denied';
+            }
+            else {
+              errorCode.value = 'network';
+            }
+            return;
+          }
+      );
+    } catch (e) {
       loadingStatus.value = LoadingStatus.error;
       return;
     }
-    loadingStatus.value = LoadingStatus.completed;
   }
 
   void navigateToQuestions({required QuestionsModel paper, bool tryAgain = false}){

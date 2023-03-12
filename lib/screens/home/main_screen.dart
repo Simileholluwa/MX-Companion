@@ -329,7 +329,7 @@ class _MainScreenState extends State<MainScreen> {
                                   height: 5,
                                 ),
                                 Text(
-                                  questionPaperController.errorCode.value == 'denied' ? 'Hi there! Kindly log in to access available courses' : 'Ensure you have an active internet.',
+                                  questionPaperController.errorCode.value == 'denied' ? 'Hello there! Kindly log in to access available courses' : 'Ensure you have an active internet.',
                                   textAlign: TextAlign.center,
                                 ),
                                 TextButtonWithIcon(
