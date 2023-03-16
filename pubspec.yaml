@@ -56,12 +56,11 @@ dependencies:
   http: ^0.13.5
   timezone: ^0.9.1
   loading_animation_widget: ^1.2.0+4
-  dropdown_button2: ^2.0.0
-  change_app_package_name: ^1.1.0
   path: ^1.8.2
   datetime_picker_formfield: ^2.0.1
   collection: ^1.17.0
-  flutter_slidable: ^2.0.0
+  firebase_database: ^10.0.15
+  internet_connection_checker_plus: ^1.0.1
 
 dev_dependencies:
   flutter_test:

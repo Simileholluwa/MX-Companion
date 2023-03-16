@@ -2,12 +2,14 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:mx_companion_v1/controllers/auth_controller.dart';
 import 'package:mx_companion_v1/controllers/questions_controller.dart';
 import '../../config/themes/ui_parameters.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/content_area.dart';
 import '../../widgets/questions/answer_card.dart';
 import '../../widgets/questions/questions_answer_card.dart';
+import '../../widgets/text_button_with_icon.dart';
 
 class QuestionsOverview extends GetView<QuestionsController> {
   const QuestionsOverview({Key? key}) : super(key: key);
@@ -16,6 +18,9 @@ class QuestionsOverview extends GetView<QuestionsController> {
 
   @override
   Widget build(BuildContext context) {
+
+    AuthController auth = Get.find();
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: FlexColorScheme.themedSystemNavigationBar(
         context,
@@ -76,6 +81,7 @@ class QuestionsOverview extends GetView<QuestionsController> {
                         const SizedBox(
                           height: 20,
                         ),
+                        auth.connectionStatus.value == 1 ?
                         GridView.builder(
                             shrinkWrap: true,
                             physics: const BouncingScrollPhysics(),
@@ -100,7 +106,29 @@ class QuestionsOverview extends GetView<QuestionsController> {
                                 status: _answerStatus,
                                 onTap: () => controller.jumpToQuestion(index),
                               );
-                            }),
+                            })
+                        : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.wifi_off_sharp,
+                              size: 150,
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            const Text(
+                              'Kindly ensure you have an active and stable internet.',
+                              textAlign: TextAlign.center,
+                            ),
+                            TextButtonWithIcon(
+                              onTap: () {},
+                              icon: Icons.refresh_sharp,
+                              text: 'Refresh',
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -111,7 +139,7 @@ class QuestionsOverview extends GetView<QuestionsController> {
               padding: UIParameters.mobileScreenPadding,
               child: AppButton(
                 onTap: () {
-                  controller.submit();
+                  auth.connectionStatus.value == 1 ? controller.submit() : auth.showSnackBar('Please turn on your mobile data.');
                 },
                 buttonWidget: const Text(
                   'Submit',

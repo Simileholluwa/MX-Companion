@@ -25,12 +25,13 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   AuthController auth = Get.find();
   MyZoomDrawerController controller = Get.find();
 
   static const _kAdIndex = 5;
 
+  RxInt errorCode = 100.obs;
   BannerAd? _ad;
   NativeAd? _nativeAd;
   int _getDestinationItemIndex(int rawIndex) {
@@ -51,6 +52,7 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() {
     _ad?.dispose();
     _nativeAd?.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -140,7 +142,7 @@ class _MainScreenState extends State<MainScreen> {
                           children: [
                             IconButton(
                               onPressed: () {
-                                controller.toggleZoomDrawer();
+                                auth.connectionStatus.value == 1 ? controller.toggleZoomDrawer() : auth.showSnackBar('Please turn on your mobile data.');
                               },
                               icon: const Icon(
                                 Icons.apps,
@@ -149,13 +151,22 @@ class _MainScreenState extends State<MainScreen> {
                             ),
                             IconButton(
                               onPressed: () {
-                                showSearch(
+                                auth.connectionStatus.value == 1 ? showSearch(
                                     context: context,
                                     delegate: CustomSearchDelegate()
-                                );
+                                ) : auth.showSnackBar('Please turn on your mobile data.');
                               },
                               icon: const Icon(
                                 Icons.search,
+                                size: 30,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                Get.isDarkMode ? Get.changeThemeMode(ThemeMode.light) : Get.changeThemeMode(ThemeMode.dark);
+                              },
+                              icon: Icon(
+                                Get.isDarkMode ? Icons.light_mode_sharp : Icons.dark_mode_sharp,
                                 size: 30,
                               ),
                             ),
@@ -197,7 +208,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       const Padding(
                         padding: EdgeInsets.only(left: 30, bottom: 25),
-                        child: Text('swipe left on each course card for more options',
+                        child: Text('tap on each course card for more options',
                           style: TextStyle(
                             fontSize: 8,
                           ),
@@ -206,7 +217,7 @@ class _MainScreenState extends State<MainScreen> {
                     ],
                   ),
                   if (questionPaperController.loadingStatus.value ==
-                      LoadingStatus.loading)
+                      LoadingStatus.loading && auth.connectionStatus.value == 1)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -249,7 +260,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ),
                   if (questionPaperController.loadingStatus.value ==
-                      LoadingStatus.completed)
+                      LoadingStatus.completed && auth.connectionStatus.value == 1)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(left: 10, right: 10),
@@ -304,7 +315,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                     ),
-                  if (questionPaperController.loadingStatus.value == LoadingStatus.error)
+                  if (questionPaperController.loadingStatus.value == LoadingStatus.error && auth.connectionStatus.value == 1)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -329,7 +340,7 @@ class _MainScreenState extends State<MainScreen> {
                                   height: 5,
                                 ),
                                 Text(
-                                  questionPaperController.errorCode.value == 'denied' ? 'Hello there! Kindly log in to access available courses' : 'Ensure you have an active internet.',
+                                  questionPaperController.errorCode.value == 'denied' ? 'Hello there! Kindly log in to access available courses' : 'Ensure you have an active and stable internet.',
                                   textAlign: TextAlign.center,
                                 ),
                                 TextButtonWithIcon(
@@ -338,6 +349,47 @@ class _MainScreenState extends State<MainScreen> {
                                   },
                                   icon: questionPaperController.errorCode.value == 'denied' ? Icons.login : Icons.refresh_sharp,
                                   text: questionPaperController.errorCode.value == 'denied' ? 'Login' : 'Refresh',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (auth.connectionStatus.value == 0)
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                        ),
+                        child: ContentAreaCustom(
+                          addRadius: true,
+                          addColor: true,
+                          child: SizedBox(
+                            height: double.maxFinite,
+                            width: double.maxFinite,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.wifi_off_sharp,
+                                  size: 150,
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                const Text(
+                                  'Kindly ensure you have an active and stable internet.',
+                                  textAlign: TextAlign.center,
+                                ),
+                                TextButtonWithIcon(
+                                  onTap: () {
+                                    questionPaperController.getAllPapers();
+                                  },
+                                  icon: Icons.refresh_sharp,
+                                  text: 'Refresh',
                                 ),
                               ],
                             ),

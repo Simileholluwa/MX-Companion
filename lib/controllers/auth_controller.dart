@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:core';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:mx_companion_v1/screens/login/login.dart';
 import 'package:mx_companion_v1/services/Authentication/auth_exceptions.dart';
 import '../firebase_ref/loading_status.dart';
@@ -21,6 +23,28 @@ import '../services/Authentication/auth_service.dart';
 import '../widgets/alert_bottom_sheet.dart';
 
 class AuthController extends GetxController {
+
+  @override
+  void onInit(){
+    super.onInit();
+    _listener = InternetConnectionCheckerPlus().onStatusChange.listen((InternetConnectionStatus status) {
+      switch(status){
+        case InternetConnectionStatus.connected:
+          connectionStatus.value = 1;
+          break;
+        case InternetConnectionStatus.disconnected:
+          connectionStatus.value = 0;
+          break;
+      }
+    });
+  }
+
+  @override
+  void onClose(){
+    _listener.cancel();
+    super.onClose();
+  }
+
   @override
   void onReady() {
     initAuth();
@@ -30,6 +54,8 @@ class AuthController extends GetxController {
 
   final loadingStatus = LoadingStatus.loading.obs;
   final RxBool _isLoading = false.obs;
+  late StreamSubscription<InternetConnectionStatus> _listener;
+  var connectionStatus = 0.obs;
 
   RewardedAd? rewardedAd;
   RxBool get isLoading => _isLoading;
@@ -42,7 +68,7 @@ class AuthController extends GetxController {
   late Stream<User?> _authStateChanges;
 
   void initAuth() async {
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 2));
     _auth = FirebaseAuth.instance;
     _authStateChanges = _auth.authStateChanges();
     _authStateChanges.listen((User? user) {
@@ -282,7 +308,7 @@ class AuthController extends GetxController {
         action: 'Remove',
         text: 'Remove Reminder',
         message:
-            'Are you sure you want to remove reminder to study $courseCode?',
+            'Are you sure you want to remove reminder to practice $courseCode?',
         context: Get.context!,
       );
   }
@@ -298,7 +324,7 @@ class AuthController extends GetxController {
         },
         action: 'Sign Out',
         text: 'Sign Out',
-        message: 'Are you sure you want to sign out?',
+        message: 'Are you sure you want to sign out? Your access to practice questions will be restricted.',
         context: Get.context!
       );
   }

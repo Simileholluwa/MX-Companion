@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mx_companion_v1/controllers/auth_controller.dart';
@@ -12,6 +11,7 @@ import '../../config/themes/ui_parameters.dart';
 import '../../controllers/ad_helper.dart';
 import '../../controllers/notifications_controller.dart';
 import '../../firebase_ref/references.dart';
+import '../../widgets/alert_bottom_sheet.dart';
 import '../../widgets/rating_bar.dart';
 
 class QuestionsCard extends StatefulWidget {
@@ -35,6 +35,7 @@ class _QuestionsCardState extends State<QuestionsCard> {
   RewardedAd? rewardedAd;
   InterstitialAd? interstitialAd;
   Rx<DateTime> fullDate = DateTime.now().obs;
+  RxInt errorCode = 100.obs;
 
   bool _decideWhichDayToEnable(DateTime day) {
     if ((day.isAfter(DateTime.now().subtract(const Duration(days: 1))) &&
@@ -67,7 +68,7 @@ class _QuestionsCardState extends State<QuestionsCard> {
         HelperNotification.scheduleNotifications(
             int.tryParse(widget.model.courseCode!.substring(3, 6))!,
             'It\'s time for ${widget.model.courseCode}!',
-            'Here is your reminder to study ${widget.model.courseCode}',
+            'Here is your reminder to practice ${widget.model.courseCode}',
             fullDate.value,
             auth.getUser()!.uid,
             '${widget.model.id}');
@@ -77,6 +78,302 @@ class _QuestionsCardState extends State<QuestionsCard> {
     } else {
       auth.showSnackBar('No date and time selected.');
     }
+  }
+
+  void cardOptions(int id) async {
+    bool isPending = await HelperNotification.isPendingNotification(id);
+
+    final CollectionReference userSchedule = fireStore
+        .collection('users')
+        .doc(auth.getUser()?.uid)
+        .collection('user_schedule');
+
+    await Sheet.cardOptions(
+      content: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15, left: 8, right: 10,),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: Text(
+                '${widget.model.courseCode} - ${widget.model.courseTitle}',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Theme.of(Get.context!).primaryColor,
+                ),
+              ),
+            ),
+          ),
+          Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(15),
+              ),
+              onTap: () {
+                if (rewardedAd != null) {
+                  rewardedAd?.show(onUserEarnedReward: (_, reward) {
+                    controller.navigateToQuestions(
+                      paper: widget.model,
+                      tryAgain: false,
+                    );
+                  });
+                } else {
+                  if (interstitialAd != null) {
+                    interstitialAd?.show();
+                  } else {
+                      controller.navigateToQuestions(
+                        paper: widget.model,
+                        tryAgain: false,
+                      );
+                  }
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(
+                  10,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Start quiz',
+                      style: Theme.of(Get.context!).textTheme.titleMedium!.merge(
+                            const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.arrow_forward_ios_sharp,
+                          color: Colors.orange,
+                          size: 15,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const Divider(
+            indent: 10,
+            endIndent: 10,
+          ),
+          StreamBuilder(
+              stream: userSchedule.snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+                if (streamSnapshot.hasData) {
+                  if (streamSnapshot.data!.docs.isEmpty) {
+                    return Material(
+                      type: MaterialType.transparency,
+                      child: InkWell(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(15),
+                        ),
+                        onTap: () {
+                          selectDate();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(
+                            10,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Set a reminder',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .merge(
+                                      const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                              ),
+                              const Spacer(),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: const [
+                                  Icon(
+                                    Icons.arrow_forward_ios_sharp,
+                                    color: Colors.orange,
+                                    size: 15,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    List<DocumentSnapshot> snapShot = streamSnapshot.data!.docs;
+                    var schedule = snapShot
+                        .where((element) => element.id == widget.model.id!);
+                    bool isSet = schedule.first['isSet'];
+                    return Material(
+                      type: MaterialType.transparency,
+                      child: InkWell(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(15),
+                        ),
+                        onTap: () async {
+                          Get.back();
+                          (isSet == true && isPending == true)
+                              ? auth.showCancelReminderAlertDialog(() async {
+                                  await userSchedule
+                                      .doc(widget.model.id!)
+                                      .update({
+                                    "isSet": false,
+                                  });
+                                  HelperNotification
+                                      .cancelScheduledNotification(id);
+                                  Get.back();
+                                }, widget.model.courseCode!)
+                              : selectDate();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(
+                            10,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                isPending == false
+                                    ? 'Set a reminder'
+                                    : "Remove reminder",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .merge(
+                                      const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                              ),
+                              const Spacer(),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: const [
+                                  Icon(
+                                    Icons.arrow_forward_ios_sharp,
+                                    color: Colors.orange,
+                                    size: 15,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                }
+                return Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(15),
+                    ),
+                    onTap: () {
+                      Get.back();
+                      selectDate();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(
+                        10,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Set a reminder',
+                            style:
+                                Theme.of(context).textTheme.titleMedium!.merge(
+                                      const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                          ),
+                          const Spacer(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.arrow_forward_ios_sharp,
+                                color: Colors.orange,
+                                size: 15,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+          const Divider(
+            indent: 10,
+            endIndent: 10,
+          ),
+          Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(15),
+              ),
+              onTap: () {
+                Get.back();
+                auth.showPracticeInfo(
+                    '${widget.model.courseCode}', 'Course title: ${widget.model.courseTitle}\nSemester: ${widget.model.semester}\nTime: ${widget.model.timeInMinutes()}\nNote: The system automatically submits when the time elapses. Have fun!', context
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(
+                  10,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Quiz information',
+                      style: Theme.of(Get.context!).textTheme.titleMedium!.merge(
+                        const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.arrow_forward_ios_sharp,
+                          color: Colors.orange,
+                          size: 15,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void loadInterstitialAd() {
@@ -115,15 +412,19 @@ class _QuestionsCardState extends State<QuestionsCard> {
               setState(() {
                 ad.dispose();
                 rewardedAd = null;
+
               });
               loadRewardedAd();
             },
           );
           rewardedAd = ad;
         },
-        onAdFailedToLoad: (err) {
+        onAdFailedToLoad: (error) {
+          if (error.code == 0 || error.code == 2){
+            errorCode.value = 0;
+          }
           if (kDebugMode) {
-            print('Failed to load a rewarded ad: ${err.message}');
+            print('Failed to load a rewarded ad: ${error.code}');
           }
         },
       ),
@@ -146,18 +447,28 @@ class _QuestionsCardState extends State<QuestionsCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Ink(
-      padding: const EdgeInsets.symmetric(
-        vertical: 15,
-        horizontal: 20,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: UIParameters.cardBorderRadius,
-      ),
-      child: Column(
-        children: [
-          _buildFront(),
-        ],
+    return Material(
+      type: MaterialType.transparency,
+      borderRadius: BorderRadius.circular(30),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(30),
+        onTap: () {
+          cardOptions(int.tryParse(widget.model.courseCode!.substring(3, 6))!);
+        },
+        child: Ink(
+          padding: const EdgeInsets.symmetric(
+            vertical: 15,
+            horizontal: 20,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: UIParameters.cardBorderRadius,
+          ),
+          child: Column(
+            children: [
+              _buildFront(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -165,229 +476,123 @@ class _QuestionsCardState extends State<QuestionsCard> {
   Widget _buildFront() {
     final CollectionReference allRating = fireStore.collection('allRatings');
 
-    final CollectionReference userSchedule = fireStore
-        .collection('users')
-        .doc(auth.getUser()?.uid)
-        .collection('user_schedule');
-
-    return Slidable(
-      endActionPane: ActionPane(
-        extentRatio: .85,
-        motion: const DrawerMotion(),
-        children: [
-          SlidableAction(
-            onPressed: (context) {
-              if (rewardedAd != null) {
-                rewardedAd?.show(onUserEarnedReward: (_, reward) {
-                  controller.navigateToQuestions(
-                    paper: widget.model,
-                    tryAgain: false,
-                  );
-                });
-              } else {
-                if (interstitialAd != null){
-                  interstitialAd?.show();
-                } else {
-                  auth.showSnackBar('Please turn on your mobile data.');
-                }
-              }
-            },
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.white,
-            icon: Icons.start,
-            label: 'Start',
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(10),
-              bottomLeft: Radius.circular(10),
-            ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Container(
+          height: 70,
+          width: 70,
+          decoration: BoxDecoration(
+            borderRadius: UIParameters.cardBorderRadius,
+            color: Theme.of(context).highlightColor,
           ),
-          StreamBuilder(
-              stream: userSchedule.snapshots(),
-              builder:
-                  (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-                if (streamSnapshot.hasData) {
-                  if (streamSnapshot.data!.docs.isEmpty) {
-                    return SlidableAction(
-                      onPressed: (context) async {
-                        selectDate();
-                      },
-                      backgroundColor: Colors.purpleAccent,
-                      foregroundColor: Colors.white,
-                      icon: Icons.notifications_active,
-                      label: 'Reminder',
-                    );
-                  } else {
-                    List<DocumentSnapshot> snapShot =
-                        streamSnapshot.data!.docs;
-                    var schedule = snapShot
-                        .where((element) => element.id == widget.model.id!);
-                    bool isSet = schedule.first['isSet'];
-                    int id = schedule.first['reminder_id'];
-                    return SlidableAction(
-                      onPressed: (context) async {
-                        bool isPending = await HelperNotification.isPendingNotification(id);
-                        (isSet == true && isPending == true)
-                                ? auth.showCancelReminderAlertDialog(
-                                    () async {
-                                      await userSchedule.doc(widget.model.id!).update({
-                                        "isSet": false,
-                                      });
-                                      HelperNotification.cancelScheduledNotification(id);
-                                      Get.back();
-                                    }, widget.model.courseCode!)
-                                : selectDate();
-                      },
-                      backgroundColor: Colors.purpleAccent,
-                      foregroundColor: Colors.white,
-                      icon: Icons.notifications_active,
-                      label: 'Reminder',
-                    );
-                  }
-                }
-                return SlidableAction(
-                  onPressed: (context) async {
-                    selectDate();
-                  },
-                  backgroundColor: Colors.purpleAccent,
-                  foregroundColor: Colors.white,
-                  icon: Icons.notifications_active,
-                  label: 'Reminder',
-                );
-              }),
-          SlidableAction(
-            onPressed: (context) {
-              auth.showPracticeInfo(
-                '${widget.model.courseCode}', 'Course title: ${widget.model.courseTitle}\nSemester: ${widget.model.semester}\nTime: ${widget.model.timeInMinutes()}\nNote: The system automatically submits when the time elapses. Have fun!', context
-              );
-            },
-            label: 'Information',
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            icon: Icons.info,
-            autoClose: false,
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(10),
-              bottomRight: Radius.circular(10),
-            ),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            height: 70,
-            width: 70,
-            decoration: BoxDecoration(
-              borderRadius: UIParameters.cardBorderRadius,
-              color: Theme.of(context).highlightColor,
-            ),
-            child: Center(
-              child: Column(
-                children: [
-                  Text(
-                    widget.model.creditUnit!,
-                    style: Theme.of(context).textTheme.titleLarge!.merge(
-                          const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 36,
-                          ),
-                        ),
-                  ),
-                  Text(
-                    'units',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(
-            width: 15,
-          ),
-          Flexible(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Center(
+            child: Column(
               children: [
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.searchResult ?? widget.model.courseCode!,
-                        style: Theme.of(context).textTheme.titleLarge!.merge(
-                              const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
+                Text(
+                  widget.model.creditUnit!,
+                  style: Theme.of(context).textTheme.titleLarge!.merge(
+                        const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 36,
+                        ),
                       ),
-                      Text(
-                        '${widget.model.semester!} semester',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: false,
-                        style: Theme.of(context).textTheme.titleMedium!.merge(
-                              TextStyle(color: Theme.of(context).hintColor),
-                            ),
-                      ),
-                      Text(
-                        widget.model.courseTitle!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: false,
-                        style: Theme.of(context).textTheme.titleMedium!.merge(
-                              TextStyle(color: Theme.of(context).hintColor),
-                            ),
-                      ),
-                    ],
-                  ),
+                ),
+                Text(
+                  'units',
+                  style: Theme.of(context).textTheme.labelSmall,
                 ),
               ],
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
+        ),
+        const SizedBox(
+          width: 15,
+        ),
+        Flexible(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  StreamBuilder(
-                      stream: allRating.snapshots(),
-                      builder: (context,
-                          AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-                        if (streamSnapshot.hasData) {
-                          List<DocumentSnapshot> snapShot =
-                              streamSnapshot.data!.docs;
-                          var ratings = snapShot.where(
-                              (element) => element.id == widget.model.id!);
-                          return Row(
-                            children: [
-                              RatingBar(
-                                rating: ratings.first['rating'].toDouble(),
-                                size: 12,
-                              ),
-                            ],
-                          );
-                        }
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.searchResult ?? widget.model.courseCode!,
+                      style: Theme.of(context).textTheme.titleLarge!.merge(
+                            const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                    ),
+                    Text(
+                      '${widget.model.semester!} semester',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: Theme.of(context).textTheme.titleMedium!.merge(
+                            TextStyle(color: Theme.of(context).hintColor),
+                          ),
+                    ),
+                    Text(
+                      widget.model.courseTitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: Theme.of(context).textTheme.titleMedium!.merge(
+                            TextStyle(color: Theme.of(context).hintColor),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                StreamBuilder(
+                    stream: allRating.snapshots(),
+                    builder:
+                        (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+                      if (streamSnapshot.hasData) {
+                        List<DocumentSnapshot> snapShot =
+                            streamSnapshot.data!.docs;
+                        var ratings = snapShot
+                            .where((element) => element.id == widget.model.id!);
                         return Row(
-                          children: const [
+                          children: [
                             RatingBar(
-                              rating: 4.5,
+                              rating: ratings.first['rating'].toDouble(),
                               size: 12,
                             ),
                           ],
                         );
-                      }),
-                ],
-              ),
-              const SizedBox(height: 3,),
-            ],
-          ),
-        ],
-      ),
+                      }
+                      return Row(
+                        children: const [
+                          RatingBar(
+                            rating: 4.5,
+                            size: 12,
+                          ),
+                        ],
+                      );
+                    }),
+              ],
+            ),
+            const SizedBox(
+              height: 3,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

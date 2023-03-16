@@ -222,7 +222,7 @@ class MyZoomDrawerController extends GetxController {
 
   Future<void> showJoinSocial() async {
       await Sheet.updateDetailsDialog(
-        title: 'Social Groups',
+        title: 'Join Our Social Groups',
         content: Padding(
           padding: const EdgeInsets.only(
             left: 20,
@@ -232,35 +232,50 @@ class MyZoomDrawerController extends GetxController {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                onPressed: () {
-                  openWhatsapp();
-                },
-                icon: const Icon(
-                  FontAwesomeIcons.whatsapp,
-                  size: 50,
-                  color: Colors.green,
-                ),
+              Column(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      openWhatsapp();
+                    },
+                    icon: const Icon(
+                      FontAwesomeIcons.whatsapp,
+                      size: 50,
+                      color: Colors.green,
+                    ),
+                  ),
+                  const Text('WhatsApp'),
+                ],
               ),
-              IconButton(
-                onPressed: () {
-                  openTelegram();
-                },
-                icon: const Icon(
-                  Icons.telegram,
-                  size: 50,
-                  color: Color.fromRGBO(0, 136, 204, 1),
-                ),
+              Column(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      openTelegram();
+                    },
+                    icon: const Icon(
+                      Icons.telegram,
+                      size: 50,
+                      color: Color.fromRGBO(0, 136, 204, 1),
+                    ),
+                  ),
+                  const Text('Telegram'),
+                ],
               ),
-              IconButton(
-                onPressed: () {
-                  openFacebook();
-                },
-                icon: const Icon(
-                  Icons.facebook,
-                  size: 50,
-                  color: Color.fromRGBO(66, 103, 178, 1),
-                ),
+              Column(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      openFacebook();
+                    },
+                    icon: const Icon(
+                      Icons.facebook,
+                      size: 50,
+                      color: Color.fromRGBO(66, 103, 178, 1),
+                    ),
+                  ),
+                  const Text('Facebook'),
+                ],
               ),
             ],
           ),

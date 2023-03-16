@@ -20,7 +20,6 @@ class QuestionsPage extends GetView<QuestionsController> {
 
   @override
   Widget build(BuildContext context) {
-
     AuthController auth = Get.find();
 
     DateTime _lastExitTime = DateTime.now();
@@ -35,7 +34,9 @@ class QuestionsPage extends GetView<QuestionsController> {
         onWillPop: () async {
           if (DateTime.now().difference(_lastExitTime) >=
               const Duration(seconds: 2)) {
-            auth.showSnackBar('Press the back button again to exit practice.',);
+            auth.showSnackBar(
+              'Press the back button again to exit practice.',
+            );
             _lastExitTime = DateTime.now();
             return false;
           } else {
@@ -67,7 +68,11 @@ class QuestionsPage extends GetView<QuestionsController> {
                     ),
                     Text(
                       controller.time.value,
-                      style: Theme.of(context).textTheme.titleMedium!.merge(const TextStyle(fontWeight: FontWeight.bold,),),
+                      style: Theme.of(context).textTheme.titleMedium!.merge(
+                            const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                     ),
                   ],
                 ),
@@ -77,8 +82,11 @@ class QuestionsPage extends GetView<QuestionsController> {
               Padding(
                 padding: const EdgeInsets.only(right: 15.0),
                 child: IconButton(
-                  onPressed: () => Get.toNamed(QuestionsOverview.routeName),
-                  icon: const Icon(Icons.menu_sharp, size: 30,),
+                  onPressed: () => auth.connectionStatus.value == 1 ? Get.toNamed(QuestionsOverview.routeName) : auth.showSnackBar('Please turn on your mobile data.'),
+                  icon: const Icon(
+                    Icons.menu_sharp,
+                    size: 30,
+                  ),
                 ),
               ),
             ],
@@ -86,14 +94,18 @@ class QuestionsPage extends GetView<QuestionsController> {
             title: Obx(
               () => Text(
                 'Q. ${(controller.questionIndex.value + 1).toString().padLeft(2, '0')}',
-                style: Theme.of(context).textTheme.titleMedium!.merge(const TextStyle(fontWeight: FontWeight.bold,),),
+                style: Theme.of(context).textTheme.titleMedium!.merge(
+                      const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
               ),
             ),
           ),
           body: Obx(
             () => Column(
               children: [
-                if (controller.bannerAd != null)
+                if (controller.bannerAd != null && auth.connectionStatus.value == 1)
                   Column(
                     children: [
                       Align(
@@ -107,46 +119,39 @@ class QuestionsPage extends GetView<QuestionsController> {
                       const SizedBox(height: 15),
                     ],
                   ),
-                if (controller.loadingStatus.value == LoadingStatus.loading)
+                if (controller.loadingStatus.value == LoadingStatus.loading && auth.connectionStatus.value == 1)
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top:30,
-                        left: 10,
-                        right: 10,
-                      ),
-                      child: ContentAreaCustom(
-                        addColor: true,
-                        addRadius: true,
-                        child: SizedBox(
-                          height: double.maxFinite,
-                          width: double.maxFinite,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              LoadingAnimationWidget.fourRotatingDots(
-                                color: Theme.of(context).primaryColor,
-                                size: 70,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                          Text('MX Companion',
-                            style: Theme.of(context).textTheme.titleLarge!.merge(
-                              const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 40,
-                              ),
+                    child: ContentAreaCustom(
+                      child: SizedBox(
+                        height: double.maxFinite,
+                        width: double.maxFinite,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            LoadingAnimationWidget.fourRotatingDots(
+                              color: Theme.of(context).primaryColor,
+                              size: 70,
                             ),
-                          ),
-                            ],
-                          ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              'MX Companion',
+                              style:
+                                  Theme.of(context).textTheme.titleLarge!.merge(
+                                        const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 40,
+                                        ),
+                                      ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                if (controller.loadingStatus.value == LoadingStatus.completed)
+                if (controller.loadingStatus.value == LoadingStatus.completed && auth.connectionStatus.value == 1)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10, right: 10),
@@ -164,7 +169,14 @@ class QuestionsPage extends GetView<QuestionsController> {
                                 padding: const EdgeInsets.all(20),
                                 child: Text(
                                   controller.currentQuestion.value!.question,
-                                  style: Theme.of(context).textTheme.titleLarge!.merge(const TextStyle(fontWeight: FontWeight.bold,),),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .merge(
+                                        const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                 ),
                               ),
                               GetBuilder<QuestionsController>(
@@ -212,7 +224,7 @@ class QuestionsPage extends GetView<QuestionsController> {
                       ),
                     ),
                   ),
-                if (controller.loadingStatus.value == LoadingStatus.error)
+                if (controller.loadingStatus.value == LoadingStatus.error && auth.connectionStatus.value == 1)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -230,22 +242,73 @@ class QuestionsPage extends GetView<QuestionsController> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Icon(
-                                controller.errorCode.value == 'denied' ? Icons.waving_hand : Icons.wifi_off_sharp,
+                                controller.errorCode.value == 'denied'
+                                    ? Icons.waving_hand
+                                    : Icons.wifi_off_sharp,
                                 size: 150,
                               ),
                               const SizedBox(
                                 height: 5,
                               ),
                               Text(
-                                controller.errorCode.value == 'denied' ? 'Hi there! Kindly log in to access available courses' : 'Ensure you have an active internet.',
+                                controller.errorCode.value == 'denied'
+                                    ? 'Hi there! Kindly log in to access available courses'
+                                    : 'Ensure you have an active and stable internet.',
                                 textAlign: TextAlign.center,
                               ),
                               TextButtonWithIcon(
                                 onTap: () {
-                                  controller.errorCode.value == 'denied' ? auth.navigateToLogin() : controller.loadData(controller.questionModel);
+                                  controller.errorCode.value == 'denied'
+                                      ? auth.navigateToLogin()
+                                      : controller
+                                          .loadData(controller.questionModel);
                                 },
-                                icon: controller.errorCode.value == 'denied' ? Icons.login : Icons.refresh_sharp,
-                                text: controller.errorCode.value == 'denied' ? 'Login' : 'Refresh',
+                                icon: controller.errorCode.value == 'denied'
+                                    ? Icons.login
+                                    : Icons.refresh_sharp,
+                                text: controller.errorCode.value == 'denied'
+                                    ? 'Login'
+                                    : 'Refresh',
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (auth.connectionStatus.value == 0)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 10,
+                        left: 10,
+                        right: 10,
+                      ),
+                      child: ContentAreaCustom(
+                        addRadius: true,
+                        addColor: true,
+                        child: SizedBox(
+                          height: double.maxFinite,
+                          width: double.maxFinite,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.wifi_off_sharp,
+                                size: 150,
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              const Text(
+                                'Kindly ensure you have an active and stable internet.',
+                                textAlign: TextAlign.center,
+                              ),
+                              TextButtonWithIcon(
+                                onTap: () {},
+                                icon: Icons.refresh_sharp,
+                                text: 'Refresh',
                               ),
                             ],
                           ),
@@ -309,4 +372,3 @@ class QuestionsPage extends GetView<QuestionsController> {
     );
   }
 }
-

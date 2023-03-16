@@ -34,8 +34,8 @@ class Sheet {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(
-                    left: 25,
-                    right: 25,
+                    left: 30,
+                    right: 30,
                     bottom: 20,
                     top: 10,
                   ),
@@ -43,14 +43,15 @@ class Sheet {
                     width: double.maxFinite,
                     child: Text(
                       text,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
+                        color: Theme.of(Get.context!).primaryColor,
                       ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Text(
                     message,
                     style: Theme.of(Get.context!).textTheme.titleMedium!.merge(
@@ -130,8 +131,8 @@ class Sheet {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(
-                    left: 25,
-                    right: 25,
+                    left: 35,
+                    right: 35,
                     bottom: 20,
                     top: 10,
                   ),
@@ -139,8 +140,9 @@ class Sheet {
                     width: double.maxFinite,
                     child: Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
+                        color: Theme.of(Get.context!).primaryColor,
                       ),
                     ),
                   ),
@@ -177,16 +179,17 @@ class Sheet {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(
-                    left: 25,
-                    right: 25,
+                    left: 30,
+                    right: 30,
                     top: 10,
                   ),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
+                        color: Theme.of(Get.context!).primaryColor,
                       ),
                     ),
                   ),
@@ -216,6 +219,34 @@ class Sheet {
       },
     );
   }
+
+  static Future cardOptions({
+    required Widget content,
+  }) {
+    return showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      isScrollControlled: true,
+      context: Get.context!,
+      builder: (context) {
+        return Popover(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30,),
+                  child: content,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }
 
 class Popover extends StatelessWidget {

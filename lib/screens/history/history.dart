@@ -171,7 +171,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             ),
                                             decoration: BoxDecoration(
                                               borderRadius: UIParameters.cardBorderRadius,
-                                              //color: maroonColor,
+                                              color: Colors.red,
                                             ),
                                             child: Padding(
                                               padding: const EdgeInsets.all(8.0),
@@ -181,7 +181,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                 children: const [
                                                   Icon(
                                                     Icons.delete,
-                                                    //color: Colors.white,
+                                                    color: Colors.white,
                                                     size: 30,
                                                   ),
                                                 ],
@@ -195,7 +195,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             ),
                                             decoration: BoxDecoration(
                                               borderRadius: UIParameters.cardBorderRadius,
-                                              //color: maroonColor,
+                                              color: Colors.red,
                                             ),
                                             child: Padding(
                                               padding: const EdgeInsets.all(8.0),
@@ -205,7 +205,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                 children: const [
                                                   Icon(
                                                     Icons.delete,
-                                                    //color: Colors.white,
+                                                    color: Colors.white,
                                                     size: 30,
                                                   ),
                                                 ],

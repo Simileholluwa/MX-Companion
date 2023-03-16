@@ -86,7 +86,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
     void showUpdateUserDetails(CollectionReference userDetails,) async {
         await Sheet.updateDetailsDialog(
-          title: 'Update Details',
+          title: 'Update You Profile Details',
           content: StreamBuilder(
             stream: userDetails.snapshots(),
             builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
@@ -101,8 +101,8 @@ class _MenuScreenState extends State<MenuScreen> {
                   padding: EdgeInsets.only(
                     top: 10.0,
                     bottom: MediaQuery.of(context).viewInsets.bottom + 10,
-                    left: 20,
-                    right: 20,
+                    left: 30,
+                    right: 30,
                   ),
                   child: Obx(() =>
                       Form(

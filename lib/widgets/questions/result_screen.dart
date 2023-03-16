@@ -416,7 +416,8 @@ class _ResultScreenState extends State<ResultScreen> {
                         top: 20,
                         bottom: 20,
                       ),
-                      child: Column(
+                      child: auth.connectionStatus.value == 1 ?
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Obx(
@@ -514,6 +515,7 @@ class _ResultScreenState extends State<ResultScreen> {
                               right: 20,
                             ),
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   mainAxisAlignment:
@@ -568,7 +570,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                 ),
                                 Text(
                                   "scroll left or right for more",
-                                  textAlign: TextAlign.right,
+                                  textAlign: TextAlign.left,
                                   style: TextStyle(
                                     color: Theme.of(context).hintColor,
                                     fontSize: 8,
@@ -1024,6 +1026,28 @@ class _ResultScreenState extends State<ResultScreen> {
                             ],
                           ),
                         ],
+                      )
+                      : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.wifi_off_sharp,
+                            size: 150,
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          const Text(
+                            'Kindly ensure you have an active and stable internet.',
+                            textAlign: TextAlign.center,
+                          ),
+                          TextButtonWithIcon(
+                            onTap: () {},
+                            icon: Icons.refresh_sharp,
+                            text: 'Refresh',
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -1038,7 +1062,7 @@ class _ResultScreenState extends State<ResultScreen> {
                       width: 160,
                       child: AppButton(
                         onTap: () async {
-                          if (controller.interstitialAd != null) {
+                          if (controller.interstitialAd != null && auth.connectionStatus.value == 1) {
                             controller.interstitialAd?.show();
                             controller.saveTestResult(pointsEarned);
                             await quizRating
@@ -1075,13 +1099,13 @@ class _ResultScreenState extends State<ResultScreen> {
                               width: 160,
                               child: AppButton(
                                 onTap: () {
-                                  if (controller.rewardedAd != null) {
+                                  if (controller.rewardedAd != null && auth.connectionStatus.value == 1) {
                                     controller.rewardedAd?.show(
                                         onUserEarnedReward: (_, reward) {
                                       controller.isRewarded!.value = true;
                                     });
                                   } else {
-                                    if (controller.interstitialAd2 != null) {
+                                    if (controller.interstitialAd2 != null && auth.connectionStatus.value == 1) {
                                       controller.interstitialAd2?.show();
                                       controller.isRewarded!.value = true;
                                     } else {

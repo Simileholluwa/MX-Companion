@@ -24,14 +24,13 @@ class QuestionPaperController extends GetxController {
         loadingStatus.value = LoadingStatus.completed;
       },
           onError: (e) {
-            loadingStatus.value = LoadingStatus.error;
-            print('error here : ${e.toString()}');
             if(e.code == 'permission-denied'){
               errorCode.value = 'denied';
             }
             else {
               errorCode.value = 'network';
             }
+            loadingStatus.value = LoadingStatus.error;
             return;
           }
       );
