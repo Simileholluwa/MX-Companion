@@ -2,7 +2,10 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:mx_companion_v1/screens/questions_page/questions_overview.dart';
 import '../../controllers/questions_controller.dart';
+import '../../firebase_ref/loading_status.dart';
+import '../../widgets/app_button.dart';
 import '../../widgets/content_area.dart';
 import '../../widgets/questions/answer_card.dart';
 import '../../widgets/questions/result_screen.dart';
@@ -40,15 +43,6 @@ class AnswerCheckScreen extends GetView<QuestionsController> {
             padding: EdgeInsets.only(left: 15.0),
             child: BackButton(),
           ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 15.0),
-              child: IconButton(
-                onPressed: () => Get.toNamed(ResultScreen.routeName),
-                icon: const Icon(Icons.menu_sharp, size: 30,),
-              ),
-            ),
-          ],
         ),
         body: Obx(
           () => Column(
@@ -123,6 +117,54 @@ class AnswerCheckScreen extends GetView<QuestionsController> {
                       ),
                     ),
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 20,
+                  top: 20,
+                  left: 30,
+                  right: 30,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Visibility(
+                      visible: controller.isFirstQuestion,
+                      child: SizedBox(
+                        width: 70,
+                        height: 70,
+                        child: AppButton(
+                          onTap: () {
+                            controller.prevQuestion();
+                          },
+                          buttonWidget: const Icon(
+                            Icons.arrow_back_ios_new,
+                            size: 30,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Visibility(
+                      visible: controller.loadingStatus.value ==
+                          LoadingStatus.completed,
+                      child: SizedBox(
+                        width: 70,
+                        height: 70,
+                        child: AppButton(
+                          onTap: () {
+                            controller.isLastQuestion
+                                ? Get.offAndToNamed(ResultScreen.routeName)
+                                : controller.nextQuestion();
+                          },
+                          buttonWidget: const Icon(
+                            Icons.arrow_forward_ios_sharp,
+                            size: 30,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

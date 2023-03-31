@@ -80,296 +80,288 @@ class _ResultScreenState extends State<ResultScreen> {
         .collection('allComments');
 
     void rateQuiz() async {
-       await Sheet.updateDetailsDialog(
-          title: 'Review Quiz',
-          content: StreamBuilder(
-            stream: quizRating.snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-              if (streamSnapshot.hasData) {
-                List<DocumentSnapshot> snapShot = streamSnapshot.data!.docs;
-                var ratings = snapShot
-                    .where((element) => element.id == controller.paperId);
+      await Sheet.updateDetailsDialog(
+        title: 'Review Quiz',
+        content: StreamBuilder(
+          stream: quizRating.snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+            if (streamSnapshot.hasData) {
+              List<DocumentSnapshot> snapShot = streamSnapshot.data!.docs;
+              var ratings =
+                  snapShot.where((element) => element.id == controller.paperId);
 
-                commentController.text = ratings.first['comment'];
-                var rating = ratings.first['rating'];
-                bool isRated = ratings.first['isRated'];
-                var triesOnline = ratings.first['tries'];
-                tries.value = triesOnline;
-                if (streamSnapshot.data!.docs.isEmpty) {
-                  return Container();
-                } else {
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      top: 10.0,
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 10,
-                      left: 20,
-                      right: 20,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                width: double.maxFinite,
-                                child: CustomTextField(
-                                  onSaved: (value) {
-                                    comment = value!;
-                                  },
-                                  validator: (String? value) {
-                                    if (value!.isEmpty) {
-                                      return 'Please, leave a comment';
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  controller: commentController,
-                                  filled: false,
-                                  labelText: 'Leave a comment',
-                                  prefixIcon: Icons.comment,
-                                  hintText: 'Comment',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const StarPage(),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+              commentController.text = ratings.first['comment'];
+              var rating = ratings.first['rating'];
+              bool isRated = ratings.first['isRated'];
+              var triesOnline = ratings.first['tries'];
+              tries.value = triesOnline;
+              if (streamSnapshot.data!.docs.isEmpty) {
+                return Container();
+              } else {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    top: 10.0,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+                    left: 20,
+                    right: 20,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Form(
+                        key: _formKey,
+                        child: Column(
                           children: [
-                            TextButton(
-                              onPressed: () => Get.back(),
-                              child: const Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 30,
-                            ),
-                            const SizedBox(
-                              width: 1,
-                              child: Divider(
-                                thickness: 20,
-                                height: 50,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 30,
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                final isValid =
-                                    _formKey.currentState!.validate();
-                                if (!isValid) {
-                                  return;
-                                } else {
-                                  _formKey.currentState!.save();
-                                  var comment = commentController.text.trim();
-                                  switch (rating) {
-                                    case 5:
-                                      isRated == true
-                                          ? ratingSum.value -= 5
-                                          : null;
-                                      isRated == true
-                                          ? allFives.value -= 1
-                                          : null;
-                                      break;
-                                    case 4:
-                                      isRated == true
-                                          ? ratingSum.value -= 4
-                                          : null;
-                                      isRated == true
-                                          ? allFours.value -= 1
-                                          : null;
-                                      break;
-                                    case 3:
-                                      isRated == true
-                                          ? ratingSum.value -= 3
-                                          : null;
-                                      isRated == true
-                                          ? allThrees.value -= 1
-                                          : null;
-                                      break;
-                                    case 2:
-                                      isRated == true
-                                          ? ratingSum.value -= 2
-                                          : null;
-                                      isRated == true
-                                          ? allTwos.value -= 1
-                                          : null;
-                                      break;
-                                    case 1:
-                                      isRated == true
-                                          ? ratingSum.value -= 1
-                                          : null;
-                                      isRated == true
-                                          ? allOnes.value -= 1
-                                          : null;
-                                      break;
-                                    default:
-                                      isRated == true
-                                          ? ratingSum.value -= 5
-                                          : null;
-                                      isRated == true
-                                          ? allOnes.value -= 1
-                                          : null;
-                                      break;
+                            SizedBox(
+                              width: double.maxFinite,
+                              child: CustomTextField(
+                                onSaved: (value) {
+                                  comment = value!;
+                                },
+                                validator: (String? value) {
+                                  if (value!.isEmpty) {
+                                    return 'Please, leave a comment';
+                                  } else {
+                                    return null;
                                   }
-
-                                  switch (StarPage.starValue.value) {
-                                    case 1:
-                                      isRated == true
-                                          ? allOnes.value += 1
-                                          : allOnes.value += 1;
-                                      isRated == false
-                                          ? userCount.value += 1
-                                          : null;
-                                      rating = 1;
-                                      break;
-                                    case 2:
-                                      isRated == true
-                                          ? allTwos.value += 1
-                                          : allTwos.value += 1;
-                                      isRated == false
-                                          ? userCount.value += 1
-                                          : null;
-                                      rating = 2;
-                                      break;
-                                    case 3:
-                                      isRated == true
-                                          ? allThrees.value += 1
-                                          : allThrees.value += 1;
-                                      isRated == false
-                                          ? userCount.value += 1
-                                          : null;
-                                      rating = 3;
-                                      break;
-                                    case 4:
-                                      isRated == true
-                                          ? allFours.value += 1
-                                          : allFours.value += 1;
-                                      isRated == false
-                                          ? userCount.value += 1
-                                          : null;
-                                      rating = 4;
-                                      break;
-                                    case 5:
-                                      isRated == true
-                                          ? allFives.value += 1
-                                          : allFives.value += 1;
-                                      isRated == false
-                                          ? userCount.value += 1
-                                          : null;
-                                      rating = 5;
-                                      break;
-                                    default:
-                                      isRated == true
-                                          ? allOnes.value += 1
-                                          : allOnes.value += 1;
-                                      isRated == false
-                                          ? userCount.value += 1
-                                          : null;
-                                      rating = 1;
-                                  }
-
-                                  try {
-                                    _isLoading.value = true;
-                                    await quizRating
-                                        .doc(controller.paperId)
-                                        .update({
-                                      "rating": rating,
-                                      "comment": comment,
-                                      "isRated": true,
-                                    });
-
-                                    await allRating
-                                        .doc(controller.paperId)
-                                        .update({
-                                      "ratingCount": userCount.value,
-                                      "ratingSum": ratingSum.value + rating,
-                                      "allFives": allFives.value,
-                                      "allFours": allFours.value,
-                                      "allThrees": allThrees.value,
-                                      "allTwos": allTwos.value,
-                                      "allOnes": allOnes.value,
-                                    });
-
-                                    await allRating
-                                        .doc(controller.paperId)
-                                        .update({
-                                      "rating":
-                                          ratingSum.value / userCount.value,
-                                    });
-
-                                    isRated == true
-                                        ? controller.updateComment(
-                                            comment, rating)
-                                        : controller.saveComment(
-                                            comment, rating);
-
-                                    _isLoading.value = false;
-
-                                    Get.back();
-
-                                    Get.find<AuthController>().showSnackBar(
-                                        'Thank you for reviewing this quiz.');
-                                  } catch (e) {
-                                    _isLoading.value = false;
-                                    Get.find<AuthController>()
-                                        .showSnackBar('Unable to send review.');
-                                  }
-                                }
-                              },
-                              child: _isLoading.isTrue
-                                  ? LoadingAnimationWidget.prograssiveDots(
-                                      color: Theme.of(context).primaryColor,
-                                      size: 50,
-                                    )
-                                  : const Text('Review',
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
+                                },
+                                controller: commentController,
+                                filled: false,
+                                labelText: 'Leave a comment',
+                                prefixIcon: Icons.comment,
+                                hintText: 'Comment',
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  );
-                }
-              }
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: EdgeInsets.only(
-                      top: 20.0,
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-                      left: 20,
-                      right: 20,
-                    ),
-                    child: Center(
-                      child: LoadingAnimationWidget.fourRotatingDots(
-                        color: Theme.of(context).primaryColor,
-                        size: 60,
                       ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const StarPage(),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 30,
+                          ),
+                          const SizedBox(
+                            width: 1,
+                            child: Divider(
+                              thickness: 20,
+                              height: 50,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 30,
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              final isValid = _formKey.currentState!.validate();
+                              if (!isValid) {
+                                return;
+                              } else {
+                                _formKey.currentState!.save();
+                                var comment = commentController.text.trim();
+                                switch (rating) {
+                                  case 5:
+                                    isRated == true
+                                        ? ratingSum.value -= 5
+                                        : null;
+                                    isRated == true
+                                        ? allFives.value -= 1
+                                        : null;
+                                    break;
+                                  case 4:
+                                    isRated == true
+                                        ? ratingSum.value -= 4
+                                        : null;
+                                    isRated == true
+                                        ? allFours.value -= 1
+                                        : null;
+                                    break;
+                                  case 3:
+                                    isRated == true
+                                        ? ratingSum.value -= 3
+                                        : null;
+                                    isRated == true
+                                        ? allThrees.value -= 1
+                                        : null;
+                                    break;
+                                  case 2:
+                                    isRated == true
+                                        ? ratingSum.value -= 2
+                                        : null;
+                                    isRated == true ? allTwos.value -= 1 : null;
+                                    break;
+                                  case 1:
+                                    isRated == true
+                                        ? ratingSum.value -= 1
+                                        : null;
+                                    isRated == true ? allOnes.value -= 1 : null;
+                                    break;
+                                  default:
+                                    isRated == true
+                                        ? ratingSum.value -= 5
+                                        : null;
+                                    isRated == true ? allOnes.value -= 1 : null;
+                                    break;
+                                }
+
+                                switch (StarPage.starValue.value) {
+                                  case 1:
+                                    isRated == true
+                                        ? allOnes.value += 1
+                                        : allOnes.value += 1;
+                                    isRated == false
+                                        ? userCount.value += 1
+                                        : null;
+                                    rating = 1;
+                                    break;
+                                  case 2:
+                                    isRated == true
+                                        ? allTwos.value += 1
+                                        : allTwos.value += 1;
+                                    isRated == false
+                                        ? userCount.value += 1
+                                        : null;
+                                    rating = 2;
+                                    break;
+                                  case 3:
+                                    isRated == true
+                                        ? allThrees.value += 1
+                                        : allThrees.value += 1;
+                                    isRated == false
+                                        ? userCount.value += 1
+                                        : null;
+                                    rating = 3;
+                                    break;
+                                  case 4:
+                                    isRated == true
+                                        ? allFours.value += 1
+                                        : allFours.value += 1;
+                                    isRated == false
+                                        ? userCount.value += 1
+                                        : null;
+                                    rating = 4;
+                                    break;
+                                  case 5:
+                                    isRated == true
+                                        ? allFives.value += 1
+                                        : allFives.value += 1;
+                                    isRated == false
+                                        ? userCount.value += 1
+                                        : null;
+                                    rating = 5;
+                                    break;
+                                  default:
+                                    isRated == true
+                                        ? allOnes.value += 1
+                                        : allOnes.value += 1;
+                                    isRated == false
+                                        ? userCount.value += 1
+                                        : null;
+                                    rating = 1;
+                                }
+
+                                try {
+                                  _isLoading.value = true;
+                                  await quizRating
+                                      .doc(controller.paperId)
+                                      .update({
+                                    "rating": rating,
+                                    "comment": comment,
+                                    "isRated": true,
+                                  });
+
+                                  await allRating
+                                      .doc(controller.paperId)
+                                      .update({
+                                    "ratingCount": userCount.value,
+                                    "ratingSum": ratingSum.value + rating,
+                                    "allFives": allFives.value,
+                                    "allFours": allFours.value,
+                                    "allThrees": allThrees.value,
+                                    "allTwos": allTwos.value,
+                                    "allOnes": allOnes.value,
+                                  });
+
+                                  await allRating
+                                      .doc(controller.paperId)
+                                      .update({
+                                    "rating": ratingSum.value / userCount.value,
+                                  });
+
+                                  isRated == true
+                                      ? controller.updateComment(
+                                          comment, rating)
+                                      : controller.saveComment(comment, rating);
+
+                                  _isLoading.value = false;
+
+                                  Get.back();
+
+                                  Get.find<AuthController>().showSnackBar(
+                                      'Thank you for reviewing this quiz.');
+                                } catch (e) {
+                                  _isLoading.value = false;
+                                  Get.find<AuthController>()
+                                      .showSnackBar('Unable to send review.');
+                                }
+                              }
+                            },
+                            child: _isLoading.isTrue
+                                ? LoadingAnimationWidget.prograssiveDots(
+                                    color: Theme.of(context).primaryColor,
+                                    size: 50,
+                                  )
+                                : const Text(
+                                    'Review',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(
+                    top: 20.0,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                    left: 20,
+                    right: 20,
+                  ),
+                  child: Center(
+                    child: LoadingAnimationWidget.fourRotatingDots(
+                      color: Theme.of(context).primaryColor,
+                      size: 60,
                     ),
                   ),
-                ],
-              );
-            },
-          ),
+                ),
+              ],
+            );
+          },
+        ),
       );
     }
 
@@ -405,649 +397,712 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
           body: Column(
             children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10),
-                  child: ContentAreaCustom(
-                    addRadius: true,
-                    addColor: true,
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.only(
-                        top: 20,
-                        bottom: 20,
-                      ),
-                      child: auth.connectionStatus.value == 1 ?
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Obx(
-                            () => controller.isRewarded!.isTrue
-                                ? Visibility(
-                                    visible: controller.isRewarded!.value,
+              Obx(
+                () => Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    child: ContentAreaCustom(
+                      addRadius: true,
+                      addColor: true,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.only(
+                          top: 20,
+                          bottom: 20,
+                        ),
+                        child: auth.connectionStatus.value == 1
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Obx(
+                                    () => controller.isRewarded!.isTrue
+                                        ? Visibility(
+                                            visible:
+                                                controller.isRewarded!.value,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Padding(
+                                                  padding: EdgeInsets.only(
+                                                    left: 20,
+                                                    right: 20,
+                                                  ),
+                                                  child: Text(
+                                                    "ANSWERS",
+                                                    textAlign: TextAlign.left,
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 15,
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    left: 20,
+                                                    right: 20,
+                                                  ),
+                                                  child: GridView.builder(
+                                                    itemCount: controller
+                                                        .allQuestions.length,
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        const BouncingScrollPhysics(),
+                                                    gridDelegate:
+                                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                                      crossAxisCount:
+                                                          Get.width ~/ 90,
+                                                      childAspectRatio: 1,
+                                                      crossAxisSpacing: 8,
+                                                      mainAxisSpacing: 8,
+                                                    ),
+                                                    itemBuilder: (_, index) {
+                                                      final _question =
+                                                          controller
+                                                                  .allQuestions[
+                                                              index];
+                                                      AnswerStatus _status =
+                                                          AnswerStatus
+                                                              .notAnswered;
+                                                      final _selectedAnswer =
+                                                          _question
+                                                              .selectedAnswer;
+                                                      final _correctAnswer =
+                                                          _question
+                                                              .correctAnswer;
+
+                                                      if (_selectedAnswer ==
+                                                          _correctAnswer) {
+                                                        _status = AnswerStatus
+                                                            .correct;
+                                                      } else if (_question
+                                                              .selectedAnswer ==
+                                                          null) {
+                                                        _status =
+                                                            AnswerStatus.wrong;
+                                                      } else {
+                                                        _status =
+                                                            AnswerStatus.wrong;
+                                                      }
+                                                      return QuestionAnswerCard(
+                                                        index: index + 1,
+                                                        status: _status,
+                                                        onTap: () {
+                                                          controller
+                                                              .jumpToQuestion(
+                                                            index,
+                                                            goBack: false,
+                                                          );
+                                                          Get.toNamed(
+                                                              AnswerCheckScreen
+                                                                  .routeName);
+                                                        },
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 20),
+                                                Divider(
+                                                  height: 5,
+                                                  thickness: 3,
+                                                  color: Theme.of(context)
+                                                      .scaffoldBackgroundColor,
+                                                ),
+                                                const SizedBox(
+                                                  height: 5,
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : Container(),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 20,
+                                      right: 20,
+                                    ),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Padding(
-                                          padding: EdgeInsets.only(
-                                            left: 20,
-                                            right: 20,
-                                          ),
-                                          child: Text(
-                                            "ANSWERS",
-                                            textAlign: TextAlign.left,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 15,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 20,
-                                            right: 20,
-                                          ),
-                                          child: GridView.builder(
-                                            itemCount:
-                                                controller.allQuestions.length,
-                                            shrinkWrap: true,
-                                            physics:
-                                                const BouncingScrollPhysics(),
-                                            gridDelegate:
-                                                SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: Get.width ~/ 90,
-                                              childAspectRatio: 1,
-                                              crossAxisSpacing: 8,
-                                              mainAxisSpacing: 8,
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Text(
+                                              "YOUR STATS",
+                                              textAlign: TextAlign.left,
                                             ),
-                                            itemBuilder: (_, index) {
-                                              final _question = controller
-                                                  .allQuestions[index];
-                                              AnswerStatus _status =
-                                                  AnswerStatus.notAnswered;
-                                              final _selectedAnswer =
-                                                  _question.selectedAnswer;
-                                              final _correctAnswer =
-                                                  _question.correctAnswer;
-
-                                              if (_selectedAnswer ==
-                                                  _correctAnswer) {
-                                                _status = AnswerStatus.correct;
-                                              } else if (_question
-                                                      .selectedAnswer ==
-                                                  null) {
-                                                _status = AnswerStatus.wrong;
-                                              } else {
-                                                _status = AnswerStatus.wrong;
-                                              }
-                                              return QuestionAnswerCard(
-                                                index: index + 1,
-                                                status: _status,
-                                                onTap: () {
-                                                  controller.jumpToQuestion(
-                                                    index,
-                                                    goBack: false,
-                                                  );
-                                                  Get.toNamed(AnswerCheckScreen
-                                                      .routeName);
-                                                },
-                                              );
-                                            },
-                                          ),
+                                            Obx(
+                                              () => controller
+                                                      .isRewardedPoints!.isFalse
+                                                  ? TextButtonWithIcon(
+                                                      onTap: () {
+                                                        if (controller
+                                                                .rewardedAd !=
+                                                            null) {
+                                                          controller.rewardedAd?.show(
+                                                              onUserEarnedReward:
+                                                                  (_, reward) {
+                                                            controller
+                                                                .isRewardedPoints!
+                                                                .value = true;
+                                                            pointsEarned =
+                                                                controller
+                                                                    .points;
+                                                          });
+                                                        } else {
+                                                          if (controller
+                                                                  .interstitialAd2 !=
+                                                              null) {
+                                                            controller
+                                                                .interstitialAd2
+                                                                ?.show();
+                                                            controller
+                                                                .isRewardedPoints!
+                                                                .value = true;
+                                                            pointsEarned =
+                                                                controller
+                                                                    .points;
+                                                          } else {
+                                                            auth.showSnackBar(
+                                                                'Please turn on your mobile data.');
+                                                          }
+                                                        }
+                                                      },
+                                                      text:
+                                                          'Claim ${controller.points} points',
+                                                      icon: Icons.payments,
+                                                    )
+                                                  : TextButtonWithIcon(
+                                                      onTap: () {
+                                                        Get.find<
+                                                                AuthController>()
+                                                            .showSnackBar(
+                                                                'Points have been claimed.');
+                                                      },
+                                                      icon: Icons.check,
+                                                      text: 'Points claimed',
+                                                    ),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(height: 20),
-                                        Divider(
-                                          height: 5,
-                                          thickness: 3,
-                                          color: Theme.of(context)
-                                              .scaffoldBackgroundColor,
+                                        Text(
+                                          "scroll left or right for more",
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                            color: Theme.of(context).hintColor,
+                                            fontSize: 8,
+                                          ),
                                         ),
                                         const SizedBox(
                                           height: 5,
+                                        ),
+                                        SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Row(
+                                            children: [
+                                              Obx(
+                                                () => controller
+                                                        .isRewardedPoints!
+                                                        .isFalse
+                                                    ? const Stat(
+                                                        text: '0.0',
+                                                        name: 'Points',
+                                                      )
+                                                    : Stat(
+                                                        text: controller.points,
+                                                        name: 'Points',
+                                                      ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Stat(
+                                                text:
+                                                    '${controller.correctQuestionCount} / ${controller.allQuestions.length}',
+                                                name: 'Score',
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Stat(
+                                                text: controller.timeSpent,
+                                                name: 'Minutes',
+                                              ),
+                                              const SizedBox(width: 10),
+                                              StreamBuilder(
+                                                  stream:
+                                                      quizRating.snapshots(),
+                                                  builder: (context,
+                                                      AsyncSnapshot<
+                                                              QuerySnapshot>
+                                                          streamSnapshot) {
+                                                    if (streamSnapshot
+                                                        .hasData) {
+                                                      List<DocumentSnapshot>
+                                                          snapShot =
+                                                          streamSnapshot
+                                                              .data!.docs;
+                                                      var ratings = snapShot
+                                                          .where((element) =>
+                                                              element.id ==
+                                                              controller
+                                                                  .paperId);
+
+                                                      int triesOnline = ratings
+                                                          .first['tries'];
+                                                      tries.value = triesOnline;
+                                                      return Stat(
+                                                        text: triesOnline
+                                                            .toString(),
+                                                        name: 'Attempts',
+                                                      );
+                                                    }
+                                                    return const Stat(
+                                                      text: '12',
+                                                      name: 'Attempts',
+                                                    );
+                                                  }),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
                                         ),
                                       ],
                                     ),
-                                  )
-                                : Container(),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 20,
-                              right: 20,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "YOUR STATS",
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    Obx(
-                                      () => controller.isRewardedPoints!.isFalse
-                                          ? TextButtonWithIcon(
-                                              onTap: () {
-                                                if (controller.rewardedAd != null) {
-                                                  controller.rewardedAd?.show(
-                                                      onUserEarnedReward: (_, reward) {
-                                                        controller
-                                                            .isRewardedPoints!
-                                                            .value = true;
-                                                        pointsEarned =
-                                                            controller.points;
-                                                      });
-                                                } else {
-                                                  if (controller.interstitialAd2 != null) {
-                                                    controller.interstitialAd2?.show();
-                                                    controller
-                                                        .isRewardedPoints!
-                                                        .value = true;
-                                                    pointsEarned =
-                                                        controller.points;
-                                                  } else {
-                                                    auth.showSnackBar(
-                                                        'Please turn on your mobile data.');
-                                                  }
-                                                }
-                                              },
-                                              text:
-                                                  'Claim ${controller.points} points',
-                                              icon: Icons.payments,
-                                            )
-                                          : TextButtonWithIcon(
-                                              onTap: () {
-                                                Get.find<AuthController>()
-                                                    .showSnackBar(
-                                                        'Points have been claimed.');
-                                              },
-                                              icon: Icons.check,
-                                              text: 'Points claimed',
-                                            ),
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  "scroll left or right for more",
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                    color: Theme.of(context).hintColor,
-                                    fontSize: 8,
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
+                                  Divider(
+                                    height: 5,
+                                    thickness: 3,
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                  ),
+                                  Column(
                                     children: [
-                                      Obx(
-                                        () =>
-                                            controller.isRewardedPoints!.isFalse
-                                                ? const Stat(
-                                                    text: '0.0',
-                                                    name: 'Points',
-                                                  )
-                                                : Stat(
-                                                    text: controller.points,
-                                                    name: 'Points',
-                                                  ),
+                                      const SizedBox(
+                                        height: 2,
                                       ),
-                                      const SizedBox(width: 10),
-                                      Stat(
-                                        text:
-                                            '${controller.correctQuestionCount} / ${controller.allQuestions.length}',
-                                        name: 'Score',
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Stat(
-                                        text: controller.timeSpent,
-                                        name: 'Minutes',
-                                      ),
-                                      const SizedBox(width: 10),
-                                      StreamBuilder(
-                                          stream: quizRating.snapshots(),
-                                          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot){
-                                            if (streamSnapshot.hasData) {
-                                              List<DocumentSnapshot> snapShot = streamSnapshot.data!.docs;
-                                              var ratings = snapShot
-                                                  .where((element) => element.id == controller.paperId);
-
-                                              int triesOnline = ratings.first['tries'];
-                                              tries.value = triesOnline;
-                                              return Stat(
-                                                text: triesOnline.toString(),
-                                                name: 'Attempts',
-                                               );
-                                            }
-                                            return const Stat(
-                                              text: '12',
-                                              name: 'Attempts',
-                                            );
-                                        }
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Divider(
-                            height: 5,
-                            thickness: 3,
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                          ),
-                          Column(
-                            children: [
-                              const SizedBox(
-                                height: 2,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20, right: 20,),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "REVIEWS",
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    StreamBuilder(
-                                        stream: quizRating.snapshots(),
-                                        builder: (context,
-                                            AsyncSnapshot<QuerySnapshot>
-                                                streamSnapshot) {
-                                          if (streamSnapshot.hasData) {
-                                            List<DocumentSnapshot> snapShot =
-                                                streamSnapshot.data!.docs;
-                                            var ratings = snapShot.where(
-                                                (element) =>
-                                                    element.id ==
-                                                    controller.paperId);
-
-                                            bool isRated =
-                                                ratings.first['isRated'];
-                                            if (streamSnapshot
-                                                .data!.docs.isEmpty) {
-                                              return Container();
-                                            } else {
-                                              return TextButtonWithIcon(
-                                                onTap: () {
-                                                  rateQuiz();
-                                                },
-                                                text: isRated == true
-                                                    ? 'Edit review'
-                                                    : 'Review quiz',
-                                                icon: isRated == true
-                                                    ? Icons.edit
-                                                    : Icons.star,
-                                              );
-                                            }
-                                          }
-                                          return Container();
-                                        }),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20, right: 20,),
-                                child: StreamBuilder(
-                                  stream: allRating.snapshots(),
-                                  builder: (context,
-                                      AsyncSnapshot<QuerySnapshot>
-                                          streamSnapshot) {
-                                    if (streamSnapshot.hasData) {
-                                      List<DocumentSnapshot> snapShot =
-                                          streamSnapshot.data!.docs;
-                                      var paperRating = snapShot.where(
-                                          (element) =>
-                                              element.id == controller.paperId);
-
-                                      var rated =
-                                          paperRating.first['rating'].toDouble();
-                                      userRatings.value = rated;
-                                      var count =
-                                          paperRating.first['ratingCount'];
-                                      userCount.value = count;
-                                      var sum = paperRating.first['ratingSum'];
-                                      ratingSum.value = sum;
-                                      var fives = paperRating.first['allFives'];
-                                      allFives.value = fives;
-                                      var fours = paperRating.first['allFours'];
-                                      allFours.value = fours;
-                                      var threes = paperRating.first['allThrees'];
-                                      allThrees.value = threes;
-                                      var twos = paperRating.first['allTwos'];
-                                      allTwos.value = twos;
-                                      var ones = paperRating.first['allOnes'];
-                                      allOnes.value = ones;
-
-                                      return Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Container(
-                                            height: 150,
-                                            width: 150,
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .highlightColor,
-                                              borderRadius:
-                                                  UIParameters.cardBorderRadius,
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 20,
+                                          right: 20,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Text(
+                                              "REVIEWS",
+                                              textAlign: TextAlign.left,
                                             ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10.0),
-                                              child: Column(
+                                            StreamBuilder(
+                                                stream: quizRating.snapshots(),
+                                                builder: (context,
+                                                    AsyncSnapshot<QuerySnapshot>
+                                                        streamSnapshot) {
+                                                  if (streamSnapshot.hasData) {
+                                                    List<DocumentSnapshot>
+                                                        snapShot =
+                                                        streamSnapshot
+                                                            .data!.docs;
+                                                    var ratings = snapShot
+                                                        .where((element) =>
+                                                            element.id ==
+                                                            controller.paperId);
+
+                                                    bool isRated = ratings
+                                                        .first['isRated'];
+                                                    if (streamSnapshot
+                                                        .data!.docs.isEmpty) {
+                                                      return Container();
+                                                    } else {
+                                                      return TextButtonWithIcon(
+                                                        onTap: () {
+                                                          rateQuiz();
+                                                        },
+                                                        text: isRated == true
+                                                            ? 'Edit review'
+                                                            : 'Review quiz',
+                                                        icon: isRated == true
+                                                            ? Icons.edit
+                                                            : Icons.star,
+                                                      );
+                                                    }
+                                                  }
+                                                  return Container();
+                                                }),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 20,
+                                          right: 20,
+                                        ),
+                                        child: StreamBuilder(
+                                          stream: allRating.snapshots(),
+                                          builder: (context,
+                                              AsyncSnapshot<QuerySnapshot>
+                                                  streamSnapshot) {
+                                            if (streamSnapshot.hasData) {
+                                              List<DocumentSnapshot> snapShot =
+                                                  streamSnapshot.data!.docs;
+                                              var paperRating = snapShot.where(
+                                                  (element) =>
+                                                      element.id ==
+                                                      controller.paperId);
+
+                                              var rated = paperRating
+                                                  .first['rating']
+                                                  .toDouble();
+                                              userRatings.value = rated;
+                                              var count = paperRating
+                                                  .first['ratingCount'];
+                                              userCount.value = count;
+                                              var sum = paperRating
+                                                  .first['ratingSum'];
+                                              ratingSum.value = sum;
+                                              var fives =
+                                                  paperRating.first['allFives'];
+                                              allFives.value = fives;
+                                              var fours =
+                                                  paperRating.first['allFours'];
+                                              allFours.value = fours;
+                                              var threes = paperRating
+                                                  .first['allThrees'];
+                                              allThrees.value = threes;
+                                              var twos =
+                                                  paperRating.first['allTwos'];
+                                              allTwos.value = twos;
+                                              var ones =
+                                                  paperRating.first['allOnes'];
+                                              allOnes.value = ones;
+
+                                              return Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceBetween,
                                                 children: [
-                                                  Text(
-                                                    rated.toString(),
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .titleLarge!
-                                                        .merge(
-                                                          const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 60,
-                                                          ),
-                                                        ),
-                                                  ),
-                                                  RatingBar(
-                                                    rating: rated,
-                                                    size: 24,
-                                                  ),
-                                                  Text(
-                                                    '$count verified ratings',
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 150,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Rating(
-                                                  number: '5',
-                                                  value: count <= 0
-                                                      ? 0.0
-                                                      : fives / count,
-                                                ),
-                                                Rating(
-                                                  number: '4',
-                                                  value: count <= 0
-                                                      ? 0.0
-                                                      : fours / count,
-                                                ),
-                                                Rating(
-                                                  number: '3',
-                                                  value: count <= 0
-                                                      ? 0.0
-                                                      : threes / count,
-                                                ),
-                                                Rating(
-                                                  number: '2',
-                                                  value: count <= 0
-                                                      ? 0.0
-                                                      : twos / count,
-                                                ),
-                                                Rating(
-                                                  number: '1',
-                                                  value: count <= 0
-                                                      ? 0.0
-                                                      : ones / count,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }
-                                    return Container();
-                                  },
-                                ),
-                              ),
-                              StreamBuilder(
-                                stream: allComment.snapshots(),
-                                builder: (context,
-                                    AsyncSnapshot<QuerySnapshot>
-                                        streamSnapshot) {
-                                  if (streamSnapshot.hasData) {
-                                    if (streamSnapshot.data!.docs.isEmpty) {
-                                      return const Padding(
-                                        padding: EdgeInsets.only(
-                                          top: 10,
-                                          left: 20,
-                                        ),
-                                        child: Text(
-                                            'Be the first to review this quiz!'),
-                                      );
-                                    }
-                                    return Column(
-                                      children: [
-                                        const SizedBox(
-                                          height: 20,
-                                        ),
-                                        Divider(
-                                          height: 5,
-                                          thickness: 3,
-                                          color: Theme.of(context)
-                                              .scaffoldBackgroundColor,
-                                        ),
-                                        const SizedBox(
-                                          height: 2,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 20, right: 20,),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text(
-                                                "COMMENTS",
-                                                textAlign: TextAlign.left,
-                                              ),
-                                              TextButtonWithIcon(
-                                                onTap: () {
-                                                  if (streamSnapshot.data!.docs.length <= 2) {
-                                                    auth.showSnackBar('All comments are shown below');
-                                                  } else {
-                                                    controller
-                                                      .navigateToComments();
-                                                  }
-                                                },
-                                                text: 'View all',
-                                                icon: Icons.view_list_sharp,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        ListView.separated(
-                                            physics:
-                                                const BouncingScrollPhysics(),
-                                            shrinkWrap: true,
-                                            separatorBuilder:
-                                                (BuildContext context,
-                                                    int index) {
-                                              return const SizedBox(
-                                                height: 10,
-                                              );
-                                            },
-                                            itemCount: streamSnapshot
-                                                        .data!.docs.length <
-                                                    2
-                                                ? 1
-                                                : 2,
-                                            itemBuilder: (context, index) {
-                                              final DocumentSnapshot
-                                                  documentSnapShot =
-                                                  streamSnapshot
-                                                      .data!.docs[index];
-                                              return Material(
-                                                borderRadius: UIParameters
-                                                    .cardBorderRadius,
-                                                child: InkWell(
-                                                  borderRadius: UIParameters
-                                                      .cardBorderRadius,
-                                                  onTap: () {
-                                                    controller.commentPreview(
-                                                        documentSnapShot[
-                                                            'comment'],
-                                                        documentSnapShot[
-                                                            'rating'],
-                                                        documentSnapShot[
-                                                            'userDisplayName']);
-                                                  },
-                                                  child: Ink(
+                                                  Container(
+                                                    height: 150,
+                                                    width: 150,
                                                     decoration: BoxDecoration(
-                                                        borderRadius: UIParameters
-                                                            .cardBorderRadius),
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      vertical: 5,
-                                                      horizontal: 20,
+                                                      color: Theme.of(context)
+                                                          .highlightColor,
+                                                      borderRadius: UIParameters
+                                                          .cardBorderRadius,
                                                     ),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              10.0),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Text(
+                                                            rated.toString(),
+                                                            style:
+                                                                Theme.of(
+                                                                        context)
+                                                                    .textTheme
+                                                                    .titleLarge!
+                                                                    .merge(
+                                                                      const TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        fontSize:
+                                                                            60,
+                                                                      ),
+                                                                    ),
+                                                          ),
+                                                          RatingBar(
+                                                            rating: rated,
+                                                            size: 24,
+                                                          ),
+                                                          Text(
+                                                            '$count verified ratings',
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 150,
                                                     child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
                                                               .start,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
                                                       children: [
-                                                        Row(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Flexible(
-                                                              child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceBetween,
-                                                                    children: [
-                                                                      RatingBar(
-                                                                          rating:
-                                                                              documentSnapShot['rating'].toDouble()),
-                                                                      Text(
-                                                                        documentSnapShot['created']
-                                                                            .toDate()
-                                                                            .toString()
-                                                                            .substring(0,
-                                                                                16),
-                                                                        style: Theme.of(context)
-                                                                            .textTheme
-                                                                            .titleMedium!
-                                                                            .merge(
-                                                                              const TextStyle(
-                                                                                fontSize: 12,
-                                                                              ),
-                                                                            ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    height: 5,
-                                                                  ),
-                                                                  Text(
-                                                                    documentSnapShot[
-                                                                        'userDisplayName'],
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    softWrap:
-                                                                        false,
-                                                                    style: Theme.of(
-                                                                            context)
-                                                                        .textTheme
-                                                                        .titleMedium!
-                                                                        .merge(
-                                                                          const TextStyle(
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                          ),
-                                                                        ),
-                                                                  ),
-                                                                  Text(
-                                                                    documentSnapShot[
-                                                                        'comment'],
-                                                                    maxLines: 2,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    softWrap:
-                                                                        false,
-                                                                    style: Theme.of(
-                                                                            context)
-                                                                        .textTheme
-                                                                        .titleMedium!
-                                                                        .merge(
-                                                                          TextStyle(
-                                                                              color: Theme.of(context).hintColor),
-                                                                        ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
+                                                        Rating(
+                                                          number: '5',
+                                                          value: count <= 0
+                                                              ? 0.0
+                                                              : fives / count,
+                                                        ),
+                                                        Rating(
+                                                          number: '4',
+                                                          value: count <= 0
+                                                              ? 0.0
+                                                              : fours / count,
+                                                        ),
+                                                        Rating(
+                                                          number: '3',
+                                                          value: count <= 0
+                                                              ? 0.0
+                                                              : threes / count,
+                                                        ),
+                                                        Rating(
+                                                          number: '2',
+                                                          value: count <= 0
+                                                              ? 0.0
+                                                              : twos / count,
+                                                        ),
+                                                        Rating(
+                                                          number: '1',
+                                                          value: count <= 0
+                                                              ? 0.0
+                                                              : ones / count,
                                                         ),
                                                       ],
                                                     ),
                                                   ),
-                                                ),
+                                                ],
                                               );
-                                            }),
-                                      ],
-                                    );
-                                  }
-                                  return Container();
-                                },
+                                            }
+                                            return Container();
+                                          },
+                                        ),
+                                      ),
+                                      StreamBuilder(
+                                        stream: allComment.snapshots(),
+                                        builder: (context,
+                                            AsyncSnapshot<QuerySnapshot>
+                                                streamSnapshot) {
+                                          if (streamSnapshot.hasData) {
+                                            if (streamSnapshot
+                                                .data!.docs.isEmpty) {
+                                              return const Padding(
+                                                padding: EdgeInsets.only(
+                                                  top: 10,
+                                                  left: 20,
+                                                ),
+                                                child: Text(
+                                                    'Be the first to review this quiz!'),
+                                              );
+                                            }
+                                            return Column(
+                                              children: [
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Divider(
+                                                  height: 5,
+                                                  thickness: 3,
+                                                  color: Theme.of(context)
+                                                      .scaffoldBackgroundColor,
+                                                ),
+                                                const SizedBox(
+                                                  height: 2,
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    left: 20,
+                                                    right: 20,
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      const Text(
+                                                        "COMMENTS",
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                      ),
+                                                      TextButtonWithIcon(
+                                                        onTap: () {
+                                                          if (streamSnapshot
+                                                                  .data!
+                                                                  .docs
+                                                                  .length <=
+                                                              2) {
+                                                            auth.showSnackBar(
+                                                                'All comments are shown below');
+                                                          } else {
+                                                            controller
+                                                                .navigateToComments();
+                                                          }
+                                                        },
+                                                        text: 'View all',
+                                                        icon: Icons
+                                                            .view_list_sharp,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                ListView.separated(
+                                                    physics:
+                                                        const BouncingScrollPhysics(),
+                                                    shrinkWrap: true,
+                                                    separatorBuilder:
+                                                        (BuildContext context,
+                                                            int index) {
+                                                      return const SizedBox(
+                                                        height: 10,
+                                                      );
+                                                    },
+                                                    itemCount: streamSnapshot
+                                                                .data!
+                                                                .docs
+                                                                .length <
+                                                            2
+                                                        ? 1
+                                                        : 2,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      final DocumentSnapshot
+                                                          documentSnapShot =
+                                                          streamSnapshot.data!
+                                                              .docs[index];
+                                                      return Material(
+                                                        borderRadius: UIParameters
+                                                            .cardBorderRadius,
+                                                        child: InkWell(
+                                                          borderRadius: UIParameters
+                                                              .cardBorderRadius,
+                                                          onTap: () {
+                                                            controller.commentPreview(
+                                                                documentSnapShot[
+                                                                    'comment'],
+                                                                documentSnapShot[
+                                                                    'rating'],
+                                                                documentSnapShot[
+                                                                    'userDisplayName']);
+                                                          },
+                                                          child: Ink(
+                                                            decoration: BoxDecoration(
+                                                                borderRadius:
+                                                                    UIParameters
+                                                                        .cardBorderRadius),
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                              vertical: 5,
+                                                              horizontal: 20,
+                                                            ),
+                                                            child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Row(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Flexible(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Row(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.spaceBetween,
+                                                                            children: [
+                                                                              RatingBar(rating: documentSnapShot['rating'].toDouble()),
+                                                                              Text(
+                                                                                documentSnapShot['created'].toDate().toString().substring(0, 16),
+                                                                                style: Theme.of(context).textTheme.titleMedium!.merge(
+                                                                                      const TextStyle(
+                                                                                        fontSize: 12,
+                                                                                      ),
+                                                                                    ),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height:
+                                                                                5,
+                                                                          ),
+                                                                          Text(
+                                                                            documentSnapShot['userDisplayName'],
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis,
+                                                                            softWrap:
+                                                                                false,
+                                                                            style: Theme.of(context).textTheme.titleMedium!.merge(
+                                                                                  const TextStyle(
+                                                                                    fontWeight: FontWeight.bold,
+                                                                                  ),
+                                                                                ),
+                                                                          ),
+                                                                          Text(
+                                                                            documentSnapShot['comment'],
+                                                                            maxLines:
+                                                                                2,
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis,
+                                                                            softWrap:
+                                                                                false,
+                                                                            style: Theme.of(context).textTheme.titleMedium!.merge(
+                                                                                  TextStyle(color: Theme.of(context).hintColor),
+                                                                                ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }),
+                                              ],
+                                            );
+                                          }
+                                          return Container();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
+                            : SizedBox(
+                                width: double.maxFinite,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.wifi_off_sharp,
+                                      size: 150,
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                    const Text(
+                                      'Kindly ensure you have an active and stable internet.',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    TextButtonWithIcon(
+                                      onTap: () {},
+                                      icon: Icons.refresh_sharp,
+                                      text: 'Refresh',
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
-                          ),
-                        ],
-                      )
-                      : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.wifi_off_sharp,
-                            size: 150,
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          const Text(
-                            'Kindly ensure you have an active and stable internet.',
-                            textAlign: TextAlign.center,
-                          ),
-                          TextButtonWithIcon(
-                            onTap: () {},
-                            icon: Icons.refresh_sharp,
-                            text: 'Refresh',
-                          ),
-                        ],
                       ),
                     ),
                   ),
@@ -1062,12 +1117,11 @@ class _ResultScreenState extends State<ResultScreen> {
                       width: 160,
                       child: AppButton(
                         onTap: () async {
-                          if (controller.interstitialAd != null && auth.connectionStatus.value == 1) {
+                          if (controller.interstitialAd != null &&
+                              auth.connectionStatus.value == 1) {
                             controller.interstitialAd?.show();
                             controller.saveTestResult(pointsEarned);
-                            await quizRating
-                                .doc(controller.paperId)
-                                .update({
+                            await quizRating.doc(controller.paperId).update({
                               "tries": tries.value += 1,
                             });
                             HelperNotification.scheduleLocalNotifications(
@@ -1099,13 +1153,15 @@ class _ResultScreenState extends State<ResultScreen> {
                               width: 160,
                               child: AppButton(
                                 onTap: () {
-                                  if (controller.rewardedAd != null && auth.connectionStatus.value == 1) {
+                                  if (controller.rewardedAd != null &&
+                                      auth.connectionStatus.value == 1) {
                                     controller.rewardedAd?.show(
                                         onUserEarnedReward: (_, reward) {
                                       controller.isRewarded!.value = true;
                                     });
                                   } else {
-                                    if (controller.interstitialAd2 != null && auth.connectionStatus.value == 1) {
+                                    if (controller.interstitialAd2 != null &&
+                                        auth.connectionStatus.value == 1) {
                                       controller.interstitialAd2?.show();
                                       controller.isRewarded!.value = true;
                                     } else {

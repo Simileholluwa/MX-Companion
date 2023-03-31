@@ -59,7 +59,7 @@ class AuthController extends GetxController {
 
   RewardedAd? rewardedAd;
   RxBool get isLoading => _isLoading;
-  String? m_token = "";
+  String? mToken = "";
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
@@ -144,7 +144,7 @@ class AuthController extends GetxController {
         phoneNumber: phoneNumber,
         url: url,
         created: created,
-        deviceToken: m_token!,
+        deviceToken: mToken!,
       );
       _isLoading.value = false;
       await AuthService.firebase().sendEmailVerification();
@@ -403,7 +403,7 @@ class AuthController extends GetxController {
 
   void getToken() async {
     await FirebaseMessaging.instance.getToken().then((token) {
-      m_token = token;
+      mToken = token;
       update();
     });
   }

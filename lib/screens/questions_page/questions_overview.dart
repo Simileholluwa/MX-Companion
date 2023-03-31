@@ -18,7 +18,6 @@ class QuestionsOverview extends GetView<QuestionsController> {
 
   @override
   Widget build(BuildContext context) {
-
     AuthController auth = Get.find();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -34,8 +33,13 @@ class QuestionsOverview extends GetView<QuestionsController> {
           shadowColor: Colors.transparent,
           automaticallyImplyLeading: false,
           scrolledUnderElevation: 0,
-          title: Text(controller.completedTest,
-            style: Theme.of(context).textTheme.titleMedium!.merge(const TextStyle(fontWeight: FontWeight.bold,),),
+          title: Text(
+            controller.completedTest,
+            style: Theme.of(context).textTheme.titleMedium!.merge(
+                  const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
           ),
           centerTitle: true,
           leading: const Padding(
@@ -45,91 +49,103 @@ class QuestionsOverview extends GetView<QuestionsController> {
         ),
         body: Column(
           children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10),
-                child: ContentAreaCustom(
-                  addRadius: true,
-                  addColor: true,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 20, top: 20,),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.timer,
-                                  color: Color(0xffeea346),
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Obx(
-                                  () => Text(
+            Obx(
+              () => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  child: ContentAreaCustom(
+                    addRadius: true,
+                    addColor: true,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.timer,
+                                    color: Color(0xffeea346),
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
                                     "${controller.time.value} remaining",
-                                    style: Theme.of(context).textTheme.titleMedium!.merge(const TextStyle(fontWeight: FontWeight.bold,),),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium!
+                                        .merge(
+                                          const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          auth.connectionStatus.value == 1
+                              ? GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const BouncingScrollPhysics(),
+                                  itemCount: controller.allQuestions.length,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: Get.width ~/ 90,
+                                    childAspectRatio: 1,
+                                    crossAxisSpacing: 8,
+                                    mainAxisSpacing: 8,
+                                  ),
+                                  itemBuilder: (_, index) {
+                                    AnswerStatus? _answerStatus;
+                                    if (controller.allQuestions[index]
+                                            .selectedAnswer !=
+                                        null) {
+                                      _answerStatus = AnswerStatus.answered;
+                                    }
+                                    return QuestionAnswerCard(
+                                      addSplash: true,
+                                      index: index + 1,
+                                      status: _answerStatus,
+                                      onTap: () =>
+                                          controller.jumpToQuestion(index),
+                                    );
+                                  })
+                              : SizedBox(
+                                  width: double.maxFinite,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.wifi_off_sharp,
+                                        size: 150,
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      const Text(
+                                        'Kindly ensure you have an active and stable internet.',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      TextButtonWithIcon(
+                                        onTap: () {},
+                                        icon: Icons.refresh_sharp,
+                                        text: 'Refresh',
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        auth.connectionStatus.value == 1 ?
-                        GridView.builder(
-                            shrinkWrap: true,
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: controller.allQuestions.length,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: Get.width ~/ 90,
-                              childAspectRatio: 1,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
-                            ),
-                            itemBuilder: (_, index) {
-                              AnswerStatus? _answerStatus;
-                              if (controller
-                                      .allQuestions[index].selectedAnswer !=
-                                  null) {
-                                _answerStatus = AnswerStatus.answered;
-                              }
-                              return QuestionAnswerCard(
-                                addSplash: true,
-                                index: index + 1,
-                                status: _answerStatus,
-                                onTap: () => controller.jumpToQuestion(index),
-                              );
-                            })
-                        : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.wifi_off_sharp,
-                              size: 150,
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            const Text(
-                              'Kindly ensure you have an active and stable internet.',
-                              textAlign: TextAlign.center,
-                            ),
-                            TextButtonWithIcon(
-                              onTap: () {},
-                              icon: Icons.refresh_sharp,
-                              text: 'Refresh',
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -139,11 +155,15 @@ class QuestionsOverview extends GetView<QuestionsController> {
               padding: UIParameters.mobileScreenPadding,
               child: AppButton(
                 onTap: () {
-                  auth.connectionStatus.value == 1 ? controller.submit() : auth.showSnackBar('Please turn on your mobile data.');
+                  auth.connectionStatus.value == 1
+                      ? controller.submit()
+                      : auth.showSnackBar('Please turn on your mobile data.');
                 },
                 buttonWidget: const Text(
                   'Submit',
-                  style: TextStyle(fontSize: 20,),
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
                 ),
               ),
             ),

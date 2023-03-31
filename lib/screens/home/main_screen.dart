@@ -151,10 +151,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                             ),
                             IconButton(
                               onPressed: () {
-                                auth.connectionStatus.value == 1 ? showSearch(
+                                auth.connectionStatus.value == 1 ? (auth.isLoggedIn() ? showSearch(
                                     context: context,
                                     delegate: CustomSearchDelegate()
-                                ) : auth.showSnackBar('Please turn on your mobile data.');
+                                ) : auth.showSnackBar('Please log in')): auth.showSnackBar('Please turn on your mobile data.');
                               },
                               icon: const Icon(
                                 Icons.search,

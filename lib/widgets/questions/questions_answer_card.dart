@@ -55,7 +55,6 @@ class QuestionAnswerCard extends StatelessWidget {
               ),
             ),
           ),
-
         ),
       ),
     );
