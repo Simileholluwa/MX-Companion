@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mx_companion_v1/controllers/auth_controller.dart';
+import 'package:mx_companion_v1/controllers/connectivity.dart';
 import 'package:mx_companion_v1/controllers/questions_controller.dart';
 import '../../config/themes/ui_parameters.dart';
 import '../../widgets/app_button.dart';
@@ -19,6 +20,7 @@ class QuestionsOverview extends GetView<QuestionsController> {
   @override
   Widget build(BuildContext context) {
     AuthController auth = Get.find();
+    InternetConnectivityController connectivity = Get.find();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: FlexColorScheme.themedSystemNavigationBar(
@@ -91,7 +93,7 @@ class QuestionsOverview extends GetView<QuestionsController> {
                           const SizedBox(
                             height: 20,
                           ),
-                          auth.connectionStatus.value == 1
+                          connectivity.isConnected.isTrue
                               ? GridView.builder(
                                   shrinkWrap: true,
                                   physics: const BouncingScrollPhysics(),
@@ -155,7 +157,7 @@ class QuestionsOverview extends GetView<QuestionsController> {
               padding: UIParameters.mobileScreenPadding,
               child: AppButton(
                 onTap: () {
-                  auth.connectionStatus.value == 1
+                  connectivity.isConnected.isTrue
                       ? controller.submit()
                       : auth.showSnackBar('Please turn on your mobile data.');
                 },

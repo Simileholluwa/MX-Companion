@@ -2,7 +2,6 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:mx_companion_v1/screens/questions_page/questions_overview.dart';
 import '../../controllers/questions_controller.dart';
 import '../../firebase_ref/loading_status.dart';
 import '../../widgets/app_button.dart';
@@ -132,8 +131,8 @@ class AnswerCheckScreen extends GetView<QuestionsController> {
                     Visibility(
                       visible: controller.isFirstQuestion,
                       child: SizedBox(
-                        width: 70,
-                        height: 70,
+                        width: 80,
+                        height: 80,
                         child: AppButton(
                           onTap: () {
                             controller.prevQuestion();
@@ -149,8 +148,8 @@ class AnswerCheckScreen extends GetView<QuestionsController> {
                       visible: controller.loadingStatus.value ==
                           LoadingStatus.completed,
                       child: SizedBox(
-                        width: 70,
-                        height: 70,
+                        width: 80,
+                        height: 80,
                         child: AppButton(
                           onTap: () {
                             controller.isLastQuestion

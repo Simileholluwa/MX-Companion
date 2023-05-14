@@ -6,6 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mx_companion_v1/controllers/auth_controller.dart';
 import 'package:mx_companion_v1/screens/questions_page/questions_overview.dart';
+import '../../controllers/connectivity.dart';
 import '../../controllers/questions_controller.dart';
 import '../../firebase_ref/loading_status.dart';
 import '../../widgets/app_button.dart';
@@ -21,6 +22,7 @@ class QuestionsPage extends GetView<QuestionsController> {
   @override
   Widget build(BuildContext context) {
     AuthController auth = Get.find();
+    InternetConnectivityController connectivity = Get.find();
 
     DateTime _lastExitTime = DateTime.now();
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -82,7 +84,7 @@ class QuestionsPage extends GetView<QuestionsController> {
               Padding(
                 padding: const EdgeInsets.only(right: 15.0),
                 child: IconButton(
-                  onPressed: () => auth.connectionStatus.value == 1 ? Get.toNamed(QuestionsOverview.routeName) : auth.showSnackBar('Please turn on your mobile data.'),
+                  onPressed: () => connectivity.isConnected.isTrue ? Get.toNamed(QuestionsOverview.routeName) : auth.showSnackBar('Please turn on your mobile data.'),
                   icon: const Icon(
                     Icons.menu_sharp,
                     size: 30,
@@ -105,7 +107,7 @@ class QuestionsPage extends GetView<QuestionsController> {
           body: Obx(
             () => Column(
               children: [
-                if (controller.bannerAd != null && auth.connectionStatus.value == 1)
+                if (controller.bannerAd != null && connectivity.isConnected.isTrue)
                   Column(
                     children: [
                       Align(
@@ -119,7 +121,7 @@ class QuestionsPage extends GetView<QuestionsController> {
                       const SizedBox(height: 15),
                     ],
                   ),
-                if (controller.loadingStatus.value == LoadingStatus.loading && auth.connectionStatus.value == 1)
+                if (controller.loadingStatus.value == LoadingStatus.loading && connectivity.isConnected.isTrue)
                   Expanded(
                     child: ContentAreaCustom(
                       child: SizedBox(
@@ -151,7 +153,7 @@ class QuestionsPage extends GetView<QuestionsController> {
                       ),
                     ),
                   ),
-                if (controller.loadingStatus.value == LoadingStatus.completed && auth.connectionStatus.value == 1)
+                if (controller.loadingStatus.value == LoadingStatus.completed && connectivity.isConnected.isTrue)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10, right: 10),
@@ -224,7 +226,7 @@ class QuestionsPage extends GetView<QuestionsController> {
                       ),
                     ),
                   ),
-                if (controller.loadingStatus.value == LoadingStatus.error && auth.connectionStatus.value == 1)
+                if (controller.loadingStatus.value == LoadingStatus.error && connectivity.isConnected.isTrue)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -276,7 +278,7 @@ class QuestionsPage extends GetView<QuestionsController> {
                       ),
                     ),
                   ),
-                if (auth.connectionStatus.value == 0)
+                if (connectivity.isConnected.isFalse)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -329,8 +331,8 @@ class QuestionsPage extends GetView<QuestionsController> {
                       Visibility(
                         visible: controller.isFirstQuestion,
                         child: SizedBox(
-                          width: 70,
-                          height: 70,
+                          width: 80,
+                          height: 80,
                           child: AppButton(
                             onTap: () {
                               controller.prevQuestion();
@@ -346,8 +348,8 @@ class QuestionsPage extends GetView<QuestionsController> {
                         visible: controller.loadingStatus.value ==
                             LoadingStatus.completed,
                         child: SizedBox(
-                          width: 70,
-                          height: 70,
+                          width: 80,
+                          height: 80,
                           child: AppButton(
                             onTap: () {
                               controller.isLastQuestion

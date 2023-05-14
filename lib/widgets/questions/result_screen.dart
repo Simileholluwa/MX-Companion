@@ -12,6 +12,7 @@ import 'package:mx_companion_v1/widgets/star_system.dart';
 import 'package:mx_companion_v1/widgets/text_button_with_icon.dart';
 import '../../config/themes/ui_parameters.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/connectivity.dart';
 import '../../controllers/questions_controller.dart';
 import '../../screens/questions_page/check_answer.dart';
 import '../alert_bottom_sheet.dart';
@@ -54,6 +55,7 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     QuestionsController controller = Get.find();
     AuthController auth = Get.find();
+    InternetConnectivityController connectivity = Get.find();
 
     String? pointsEarned;
     var userRatings = 0.0.obs;
@@ -409,7 +411,7 @@ class _ResultScreenState extends State<ResultScreen> {
                           top: 20,
                           bottom: 20,
                         ),
-                        child: auth.connectionStatus.value == 1
+                        child: connectivity.isConnected.isTrue
                             ? Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -1118,7 +1120,7 @@ class _ResultScreenState extends State<ResultScreen> {
                       child: AppButton(
                         onTap: () async {
                           if (controller.interstitialAd != null &&
-                              auth.connectionStatus.value == 1) {
+                              connectivity.isConnected.isTrue) {
                             controller.interstitialAd?.show();
                             controller.saveTestResult(pointsEarned);
                             await quizRating.doc(controller.paperId).update({
@@ -1154,14 +1156,14 @@ class _ResultScreenState extends State<ResultScreen> {
                               child: AppButton(
                                 onTap: () {
                                   if (controller.rewardedAd != null &&
-                                      auth.connectionStatus.value == 1) {
+                                      connectivity.isConnected.isTrue) {
                                     controller.rewardedAd?.show(
                                         onUserEarnedReward: (_, reward) {
                                       controller.isRewarded!.value = true;
                                     });
                                   } else {
                                     if (controller.interstitialAd2 != null &&
-                                        auth.connectionStatus.value == 1) {
+                                        connectivity.isConnected.isTrue) {
                                       controller.interstitialAd2?.show();
                                       controller.isRewarded!.value = true;
                                     } else {
@@ -1170,13 +1172,8 @@ class _ResultScreenState extends State<ResultScreen> {
                                     }
                                   }
                                 },
-                                buttonWidget: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Text('View answers'),
-                                    SizedBox(width: 10),
-                                    Icon(Icons.videocam),
-                                  ],
+                                buttonWidget: const Center(
+                                  child: Text('View answers'),
                                 ),
                               ),
                             )

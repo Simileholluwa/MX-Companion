@@ -27,16 +27,16 @@ class AuthController extends GetxController {
   @override
   void onInit(){
     super.onInit();
-    _listener = InternetConnectionCheckerPlus().onStatusChange.listen((InternetConnectionStatus status) {
-      switch(status){
-        case InternetConnectionStatus.connected:
-          connectionStatus.value = 1;
-          break;
-        case InternetConnectionStatus.disconnected:
-          connectionStatus.value = 0;
-          break;
-      }
-    });
+    // _listener = InternetConnectionCheckerPlus().onStatusChange.listen((InternetConnectionStatus status) {
+    //   switch(status){
+    //     case InternetConnectionStatus.connected:
+    //       connectionStatus.value = 1;
+    //       break;
+    //     case InternetConnectionStatus.disconnected:
+    //       connectionStatus.value = 0;
+    //       break;
+    //   }
+    // });
   }
 
   @override
@@ -55,7 +55,7 @@ class AuthController extends GetxController {
   final loadingStatus = LoadingStatus.loading.obs;
   final RxBool _isLoading = false.obs;
   late StreamSubscription<InternetConnectionStatus> _listener;
-  var connectionStatus = 0.obs;
+  //var connectionStatus = 0.obs;
 
   RewardedAd? rewardedAd;
   RxBool get isLoading => _isLoading;

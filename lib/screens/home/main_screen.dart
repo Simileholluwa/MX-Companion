@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mx_companion_v1/controllers/auth_controller.dart';
+import 'package:mx_companion_v1/controllers/connectivity.dart';
 import 'package:mx_companion_v1/controllers/zoom_drawer.dart';
 import 'package:mx_companion_v1/screens/home/question_card.dart';
 import '../../controllers/ad_helper.dart';
@@ -28,6 +29,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   AuthController auth = Get.find();
   MyZoomDrawerController controller = Get.find();
+  InternetConnectivityController connectivity = Get.find();
 
   static const _kAdIndex = 5;
 
@@ -127,8 +129,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             scrolledUnderElevation: 0,
           ),
           body: SafeArea(
-            child: Obx(
-              () => Column(
+              child: Obx(() => Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -142,7 +143,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                           children: [
                             IconButton(
                               onPressed: () {
-                                auth.connectionStatus.value == 1 ? controller.toggleZoomDrawer() : auth.showSnackBar('Please turn on your mobile data.');
+                                connectivity.isConnected.isTrue
+                                    ? controller.toggleZoomDrawer()
+                                    : auth.showSnackBar(
+                                    'Please turn on your mobile data.');
                               },
                               icon: const Icon(
                                 Icons.apps,
@@ -151,10 +155,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                             ),
                             IconButton(
                               onPressed: () {
-                                auth.connectionStatus.value == 1 ? (auth.isLoggedIn() ? showSearch(
+                                connectivity.isConnected.isTrue
+                                    ? (auth.isLoggedIn()
+                                    ? showSearch(
                                     context: context,
-                                    delegate: CustomSearchDelegate()
-                                ) : auth.showSnackBar('Please log in')): auth.showSnackBar('Please turn on your mobile data.');
+                                    delegate: CustomSearchDelegate())
+                                    : auth.showSnackBar('Please log in'))
+                                    : auth.showSnackBar(
+                                    'Please turn on your mobile data.');
                               },
                               icon: const Icon(
                                 Icons.search,
@@ -163,10 +171,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                             ),
                             IconButton(
                               onPressed: () {
-                                Get.isDarkMode ? Get.changeThemeMode(ThemeMode.light) : Get.changeThemeMode(ThemeMode.dark);
+                                Get.isDarkMode
+                                    ? Get.changeThemeMode(ThemeMode.light)
+                                    : Get.changeThemeMode(ThemeMode.dark);
                               },
                               icon: Icon(
-                                Get.isDarkMode ? Icons.light_mode_sharp : Icons.dark_mode_sharp,
+                                Get.isDarkMode
+                                    ? Icons.light_mode_sharp
+                                    : Icons.dark_mode_sharp,
                                 size: 30,
                               ),
                             ),
@@ -199,25 +211,27 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                         child: Text(
                           'What would you like to practice?',
                           style: Theme.of(context).textTheme.titleLarge!.merge(
-                                const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24,
-                                ),
-                              ),
+                            const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                            ),
+                          ),
                         ),
                       ),
                       const Padding(
                         padding: EdgeInsets.only(left: 30, bottom: 25),
-                        child: Text('tap on each course card for more options',
+                        child: Text(
+                          'tap on each course card for more options',
                           style: TextStyle(
-                            fontSize: 8,
+                            fontSize: 10,
                           ),
                         ),
                       ),
                     ],
                   ),
                   if (questionPaperController.loadingStatus.value ==
-                      LoadingStatus.loading && auth.connectionStatus.value == 1)
+                      LoadingStatus.loading &&
+                      connectivity.isConnected.isTrue)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -247,11 +261,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                                       .textTheme
                                       .titleLarge!
                                       .merge(
-                                        const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 40,
-                                        ),
-                                      ),
+                                    const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 40,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -260,7 +274,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                       ),
                     ),
                   if (questionPaperController.loadingStatus.value ==
-                      LoadingStatus.completed && auth.connectionStatus.value == 1)
+                      LoadingStatus.completed &&
+                      connectivity.isConnected.isTrue)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(left: 10, right: 10),
@@ -272,11 +287,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                             child: Column(
                               children: [
                                 Obx(
-                                  () => ListView.separated(
+                                      () => ListView.separated(
                                     physics: const BouncingScrollPhysics(),
                                     shrinkWrap: true,
-                                    itemCount: questionPaperController
-                                            .allPapers.length +
+                                    itemCount:
+                                    questionPaperController.allPapers.length +
                                         (_nativeAd != null ? 1 : 0),
                                     separatorBuilder:
                                         (BuildContext context, int index) {
@@ -300,9 +315,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                                         return Center(
                                           child: QuestionsCard(
                                             model: questionPaperController
-                                                    .allPapers[
-                                                _getDestinationItemIndex(
-                                                    index)],
+                                                .allPapers[
+                                            _getDestinationItemIndex(index)],
                                           ),
                                         );
                                       }
@@ -315,7 +329,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                         ),
                       ),
                     ),
-                  if (questionPaperController.loadingStatus.value == LoadingStatus.error && auth.connectionStatus.value == 1)
+                  if (questionPaperController.loadingStatus.value ==
+                      LoadingStatus.error &&
+                      connectivity.isConnected.isTrue)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -333,22 +349,37 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Icon(
-                                  questionPaperController.errorCode.value == 'denied' ? Icons.waving_hand : Icons.wifi_off_sharp,
-                                size: 150,
+                                  questionPaperController.errorCode.value ==
+                                      'denied'
+                                      ? Icons.waving_hand
+                                      : Icons.wifi_off_sharp,
+                                  size: 150,
                                 ),
                                 const SizedBox(
                                   height: 5,
                                 ),
                                 Text(
-                                  questionPaperController.errorCode.value == 'denied' ? 'Hello there! Kindly log in to access available courses' : 'Ensure you have an active and stable internet.',
+                                  questionPaperController.errorCode.value ==
+                                      'denied'
+                                      ? 'Hello there! Kindly log in to access available courses'
+                                      : 'Ensure you have an active and stable internet.',
                                   textAlign: TextAlign.center,
                                 ),
                                 TextButtonWithIcon(
                                   onTap: () {
-                                    questionPaperController.errorCode.value == 'denied' ? auth.navigateToLogin() : questionPaperController.getAllPapers();
+                                    questionPaperController.errorCode.value ==
+                                        'denied'
+                                        ? auth.navigateToLogin()
+                                        : questionPaperController.getAllPapers();
                                   },
-                                  icon: questionPaperController.errorCode.value == 'denied' ? Icons.login : Icons.refresh_sharp,
-                                  text: questionPaperController.errorCode.value == 'denied' ? 'Login' : 'Refresh',
+                                  icon: questionPaperController.errorCode.value ==
+                                      'denied'
+                                      ? Icons.login
+                                      : Icons.refresh_sharp,
+                                  text: questionPaperController.errorCode.value ==
+                                      'denied'
+                                      ? 'Login'
+                                      : 'Refresh',
                                 ),
                               ],
                             ),
@@ -356,7 +387,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                         ),
                       ),
                     ),
-                  if (auth.connectionStatus.value == 0)
+                  if (connectivity.isConnected.isFalse)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -401,8 +432,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     height: 5,
                   ),
                 ],
-              ),
-            ),
+              ),),
           ),
         ),
       ),
